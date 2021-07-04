@@ -19,7 +19,7 @@ const FirestoreEmulatorHost = "FIRESTORE_EMULATOR_HOST"
 
 func TestMain(m *testing.M) {
 	// command to start firestore emulator
-	cmd := exec.Command("gcloud", "beta", "emulators", "firestore", "start", "--host-port=localhost")
+	cmd := exec.Command("gcloud", "beta", "emulators", "firestore", "start", "--host-port=127.0.0.1:46785")
 
 	// this makes it killable
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
@@ -101,7 +101,7 @@ func TestStoreNew(t *testing.T) {
 func TestStoreLoad(t *testing.T) {
 	// new client
 	ctx := context.Background()
-	client, err := firestore.NewClient(ctx, "price-comparator-dev")
+	client, err := firestore.NewClient(ctx, "foobar")
 	if err != nil {
 		t.Logf(err.Error())
 		t.FailNow()
