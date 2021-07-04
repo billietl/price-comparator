@@ -4,7 +4,7 @@ on:
   push:
   pull_request:
 jobs:
-  test:
+  Vet:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -22,5 +22,27 @@ jobs:
       - name: Run tests
         run: | 
           go version
-          go test -v ./...
           go vet ./...
+  Test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+      - name: Setup go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.16'
+      - name: Install dependencies
+        run: |
+          go version
+          go mod download
+      - name: Start Firestore
+        uses: mickfeech/firestore-emulator-action@0.0.12
+        with: 
+          fireStoreProjectID: foobar
+      - name: Run tests
+        run: | 
+          go version
+          FIRESTORE_EMULATOR_HOST=127.0.0.1:8081 go test -v ./...
