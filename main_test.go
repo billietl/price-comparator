@@ -4,4 +4,4 @@ import (
 	"testing"
 )
 
-func Testtest (t *testing.T) {}
+func TestTest (t *testing.T) {}
