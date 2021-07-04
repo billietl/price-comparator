@@ -12,9 +12,9 @@ type StoreIface interface {
 
 type Store struct {
 	Id      string
-    Name    string `firestore:name`
-	City    string `firestore:city`
-	Zipcode string `firestore:zipcode`
+    Name    string `firestore:"name"`
+	City    string `firestore:"city"`
+	Zipcode string `firestore:"zipcode"`
 }
 
 func (s Store) Save() {
