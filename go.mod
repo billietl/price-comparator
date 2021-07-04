@@ -1,14 +1,10 @@
-module gitlab.com/billietl/price-comparator
+module price-comparator
 
 go 1.16
 
-replace gitlab.com/billietl/price-comparator/store => ./store
-
-replace gitlab.com/billietl/price-comparator/firestoreclient => ./firestoreclient
-
 require (
-	cloud.google.com/go/firestore v1.5.0 // indirect
-	github.com/google/uuid v1.2.0 // indirect
-	gitlab.com/billietl/price-comparator/firestoreclient v0.0.0-00010101000000-000000000000 // indirect
-	gitlab.com/billietl/price-comparator/store v0.0.0-00010101000000-000000000000 // indirect
+	cloud.google.com/go/firestore v1.5.0
+	github.com/dchest/uniuri v0.0.0-20200228104902-7aecb25e1fe5
+	github.com/google/uuid v1.2.0
+	github.com/stretchr/testify v1.7.0
 )

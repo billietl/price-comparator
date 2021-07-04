@@ -3,7 +3,7 @@ package store
 import (
 	"context"
 	"github.com/google/uuid"
-	"gitlab.com/billietl/price-comparator/firestoreclient"
+	"price-comparator/firestoreclient"
 )
 
 type StoreIface interface {
@@ -18,7 +18,7 @@ type Store struct {
 }
 
 func (s Store) Save() {
-
+	return
 }
 
 func New() (s Store) {
