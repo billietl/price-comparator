@@ -8,7 +8,7 @@ import (
 	"github.com/dchest/uniuri"
 )
 
-func Test_StoreNew(t *testing.T) {
+func TestStoreNew(t *testing.T) {
 	s := New()
 	assert.NotEqual(t, "", s.Id, "New stores should have generated ID")
 	assert.Equal(t, "", s.Name, "New stores should not have name set")
@@ -16,7 +16,7 @@ func Test_StoreNew(t *testing.T) {
 	assert.Equal(t, "", s.Zipcode, "New stores should not have zipcode set")
 }
 
-func Test_StoreLoad(t *testing.T) {
+func TestStoreLoad(t *testing.T) {
 	// new client
 	ctx := context.Background()
 	client, err := firestore.NewClient(ctx, "price-comparator-dev")
