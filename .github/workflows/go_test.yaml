@@ -19,7 +19,7 @@ jobs:
         run: |
           go version
           go mod download
-      - name: Run tests
+      - name: Run vet
         run: | 
           go version
           go vet ./...

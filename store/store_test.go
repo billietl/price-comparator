@@ -2,13 +2,6 @@ package store
 
 import (
 	"context"
-	"io"
-	"log"
-	"os"
-	"os/exec"
-	"strings"
-	"sync"
-	"syscall"
 	"testing"
 	"github.com/stretchr/testify/assert"
 	"cloud.google.com/go/firestore"
