@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+
 	"cloud.google.com/go/firestore"
 )
 
@@ -15,7 +16,7 @@ func init() {
 	ctx := context.Background()
 	client, err := firestore.NewClient(ctx, "price-comparator-dev")
 	if err != nil {
-		fmt.Printf(err.Error())
+		fmt.Print(err.Error())
 		os.Exit(1)
 	}
 	firestoreClient = client
@@ -23,8 +24,8 @@ func init() {
 	sigs := make(chan os.Signal, 1)
 	done := make(chan bool, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-	go func(){
-		<- sigs
+	go func() {
+		<-sigs
 		firestoreClient.Close()
 		done <- true
 	}()
