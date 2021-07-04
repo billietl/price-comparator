@@ -15,6 +15,8 @@ import (
 	"github.com/dchest/uniuri"
 )
 
+const FirestoreEmulatorHost = "FIRESTORE_EMULATOR_HOST"
+
 func TestMain(m *testing.M) {
 	// command to start firestore emulator
 	cmd := exec.Command("gcloud", "beta", "emulators", "firestore", "start", "--host-port=localhost")
@@ -87,8 +89,6 @@ func TestMain(m *testing.M) {
 	// now it's running, we can run our unit tests
 	result = m.Run()
 }
-
-const FirestoreEmulatorHost = "FIRESTORE_EMULATOR_HOST"
 
 func TestStoreNew(t *testing.T) {
 	s := New()

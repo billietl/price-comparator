@@ -19,10 +19,6 @@ jobs:
         run: |
           go version
           go mod download
-      - name: Start Firestore
-        uses: mickfeech/firestore-emulator-action@0.0.12
-        with: 
-          fireStoreProjectID: price-comparator-dev
       - name: Run tests
         run: | 
           go version
