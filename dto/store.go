@@ -2,6 +2,7 @@ package dto
 
 import (
 	"context"
+	"google.golang.org/api/iterator"
 )
 
 const firestoreStoreCollection = "store"
@@ -45,5 +46,41 @@ func (s *Store) Delete() (err error) {
 	if err != nil {
 		return
 	}
+	return
+}
+
+func (s *Store) Search() (storeList []Store, err error) {
+	ctx := context.Background()
+	// Build query
+	query := firestoreClient.Collection(firestoreStoreCollection).Select()
+	if s.Name != "" {
+		query = query.Where("name", "==", s.Name)
+	}
+	if s.City != "" {
+		query = query.Where("city", "==", s.City)
+	}
+	if s.Zipcode != "" {
+		query = query.Where("zipcode", "==", s.Zipcode)
+	}
+	// Retrieve documents
+	docs := query.Documents(ctx)
+	for {
+		doc, err := docs.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			docs.Stop()
+			return []Store{}, err
+		}
+		docID := doc.Ref.ID
+		newStore := Store{
+			ID: docID,
+		}
+		newStore.Load()
+		storeList = append(storeList, newStore)
+	}
+	// Cleanup
+	docs.Stop()
 	return
 }

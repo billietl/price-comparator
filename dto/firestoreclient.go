@@ -14,7 +14,7 @@ var firestoreClient *firestore.Client
 
 func init() {
 	ctx := context.Background()
-	client, err := firestore.NewClient(ctx, "price-comparator-dev")
+	client, err := firestore.NewClient(ctx, "foobar")
 	if err != nil {
 		fmt.Print(err.Error())
 		os.Exit(1)
