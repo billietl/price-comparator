@@ -2,11 +2,11 @@ package dto
 
 import (
 	"context"
-	"testing"
-	"github.com/xyproto/randomstring"
 	"github.com/stretchr/testify/assert"
+	"github.com/xyproto/randomstring"
 	"google.golang.org/grpc"
-    "google.golang.org/grpc/codes"
+	"google.golang.org/grpc/codes"
+	"testing"
 )
 
 func init() {
@@ -39,8 +39,8 @@ func TestStoreCreate(t *testing.T) {
 	ctx := context.Background()
 	// Upsert new store
 	createdStore := Store{
-		Name: randomstring.HumanFriendlyString(10),
-		City: randomstring.HumanFriendlyString(10),
+		Name:    randomstring.HumanFriendlyString(10),
+		City:    randomstring.HumanFriendlyString(10),
 		Zipcode: randomstring.HumanFriendlyString(5),
 	}
 	err := createdStore.Upsert()
@@ -90,9 +90,9 @@ func TestStoreUpdate(t *testing.T) {
 
 	// Update store data
 	store := Store{
-		ID: id, 
-		Name: randomstring.HumanFriendlyString(10),
-		City: randomstring.HumanFriendlyString(10),
+		ID:      id,
+		Name:    randomstring.HumanFriendlyString(10),
+		City:    randomstring.HumanFriendlyString(10),
 		Zipcode: randomstring.HumanFriendlyString(5),
 	}
 	store.Upsert()
@@ -107,7 +107,7 @@ func TestStoreUpdate(t *testing.T) {
 	assert.NotEqual(t, docData["name"], testData["name"])
 	assert.NotEqual(t, docData["city"], testData["city"])
 	assert.NotEqual(t, docData["zipcode"], testData["zipcode"])
-	
+
 	// Cleanup test data
 	cleanupTestData(t, id)
 }
