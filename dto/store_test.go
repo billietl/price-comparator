@@ -13,7 +13,7 @@ func init() {
 	randomstring.Seed()
 }
 
-func generateTestData(t *testing.T) (id string, result map[string]string) {
+func generateStoreTestData(t *testing.T) (id string, result map[string]string) {
 	result = map[string]string{}
 	result["name"] = randomstring.HumanFriendlyString(10)
 	result["city"] = randomstring.HumanFriendlyString(10)
@@ -30,7 +30,7 @@ func generateTestData(t *testing.T) (id string, result map[string]string) {
 	return
 }
 
-func cleanupTestData(t *testing.T, id string) {
+func cleanupStoreTestData(t *testing.T, id string) {
 	ctx := context.Background()
 	firestoreClient.Collection(firestoreStoreCollection).Doc(id).Delete(ctx)
 }
@@ -60,12 +60,12 @@ func TestStoreCreate(t *testing.T) {
 	assert.Equal(t, createdStore.City, docData["city"])
 	assert.Equal(t, createdStore.Zipcode, docData["zipcode"])
 	// Cleanup test data
-	cleanupTestData(t, createdStore.ID)
+	cleanupStoreTestData(t, createdStore.ID)
 }
 
 func TestStoreRead(t *testing.T) {
 	// Setup test data
-	id, testData := generateTestData(t)
+	id, testData := generateStoreTestData(t)
 
 	loadedStore := Store{
 		ID: id,
@@ -80,13 +80,13 @@ func TestStoreRead(t *testing.T) {
 	assert.Equal(t, testData["zipcode"], loadedStore.Zipcode, "Didn't find the right store zipcode")
 
 	// Cleanup test data
-	cleanupTestData(t, id)
+	cleanupStoreTestData(t, id)
 }
 
 func TestStoreUpdate(t *testing.T) {
 	ctx := context.Background()
 	// Setup test data
-	id, testData := generateTestData(t)
+	id, testData := generateStoreTestData(t)
 
 	// Update store data
 	store := Store{
@@ -109,19 +109,19 @@ func TestStoreUpdate(t *testing.T) {
 	assert.NotEqual(t, docData["zipcode"], testData["zipcode"])
 
 	// Cleanup test data
-	cleanupTestData(t, id)
+	cleanupStoreTestData(t, id)
 }
 
 func TestStoreDelete(t *testing.T) {
 	ctx := context.Background()
 	// Setup test data
-	id, _ := generateTestData(t)
+	id, _ := generateStoreTestData(t)
 
 	// Delete data
-	toDeleteStrore := Store{
+	toDeleteStore := Store{
 		ID: id,
 	}
-	toDeleteStrore.Delete()
+	toDeleteStore.Delete()
 	_, err := firestoreClient.Collection(firestoreStoreCollection).Doc(id).Get(ctx)
 	if grpc.Code(err) != codes.NotFound {
 		t.Log(err.Error())
@@ -131,7 +131,7 @@ func TestStoreDelete(t *testing.T) {
 
 func TestStoreSearch(t *testing.T) {
 	// Setup test data
-	id, testData := generateTestData(t)
+	id, testData := generateStoreTestData(t)
 
 	searchedByNameStore := Store{
 		Name: testData["name"],
@@ -147,5 +147,5 @@ func TestStoreSearch(t *testing.T) {
 	assert.Equal(t, testData["zipcode"], storeList[0].Zipcode, "Didn't find the right store zipcode")
 
 	// Cleanup test data
-	cleanupTestData(t, id)
+	cleanupStoreTestData(t, id)
 }
