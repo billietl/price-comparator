@@ -1,12 +1,14 @@
-package dto
+package dao
 
 import (
 	"context"
+	"price-comparator/model"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/xyproto/randomstring"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"testing"
 )
 
 func init() {
@@ -35,21 +37,24 @@ func cleanupStoreTestData(t *testing.T, id string) {
 	firestoreClient.Collection(firestoreStoreCollection).Doc(id).Delete(ctx)
 }
 
-func TestStoreCreate(t *testing.T) {
+func TestStoreDAOFirestoreCreate(t *testing.T) {
 	ctx := context.Background()
+	storeDAO := NewStoreDAOFirestore()
+
 	// Upsert new store
-	createdStore := Store{
-		Name:    randomstring.HumanFriendlyString(10),
-		City:    randomstring.HumanFriendlyString(10),
-		Zipcode: randomstring.HumanFriendlyString(5),
-	}
-	err := createdStore.Upsert()
+	createdStore := model.NewStore(
+		randomstring.HumanFriendlyString(10),
+		randomstring.HumanFriendlyString(10),
+		randomstring.HumanFriendlyString(5),
+	)
+
+	_, err := storeDAO.Upsert(ctx, createdStore)
 	if err != nil {
 		t.Log(err.Error())
 		t.Fail()
 	}
-	assert.NotEqual(t, "", createdStore.ID, "Store ID should have been genetared at upsert time")
-	// Reload store
+
+	// Reload data
 	doc, err := firestoreClient.Collection(firestoreStoreCollection).Doc(createdStore.ID).Get(ctx)
 	if err != nil {
 		t.Log(err.Error())
@@ -59,18 +64,19 @@ func TestStoreCreate(t *testing.T) {
 	assert.Equal(t, createdStore.Name, docData["name"])
 	assert.Equal(t, createdStore.City, docData["city"])
 	assert.Equal(t, createdStore.Zipcode, docData["zipcode"])
+
 	// Cleanup test data
 	cleanupStoreTestData(t, createdStore.ID)
 }
 
-func TestStoreRead(t *testing.T) {
+func TestStoreDAOFirestoreRead(t *testing.T) {
+	ctx := context.Background()
 	// Setup test data
 	id, testData := generateStoreTestData(t)
 
-	loadedStore := Store{
-		ID: id,
-	}
-	err := loadedStore.Load()
+	storeDAO := NewStoreDAOFirestore()
+
+	loadedStore, err := storeDAO.Load(ctx, id)
 	if err != nil {
 		t.Log(err.Error())
 		t.Fail()
@@ -78,24 +84,28 @@ func TestStoreRead(t *testing.T) {
 	assert.Equal(t, testData["name"], loadedStore.Name, "Didn't find the right store name")
 	assert.Equal(t, testData["city"], loadedStore.City, "Didn't find the right store city")
 	assert.Equal(t, testData["zipcode"], loadedStore.Zipcode, "Didn't find the right store zipcode")
+	assert.NotEqual(t, "", loadedStore.ID, "Loaded store didn't have ID")
 
 	// Cleanup test data
 	cleanupStoreTestData(t, id)
 }
 
-func TestStoreUpdate(t *testing.T) {
+func TestStoreDAOFirestoreUpdate(t *testing.T) {
 	ctx := context.Background()
+	storeDAO := NewStoreDAOFirestore()
+
 	// Setup test data
 	id, testData := generateStoreTestData(t)
 
-	// Update store data
-	store := Store{
-		ID:      id,
-		Name:    randomstring.HumanFriendlyString(10),
-		City:    randomstring.HumanFriendlyString(10),
-		Zipcode: randomstring.HumanFriendlyString(5),
+	store, err := storeDAO.Load(ctx, id)
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
 	}
-	store.Upsert()
+	store.Name = randomstring.HumanFriendlyString(10)
+	store.City = randomstring.HumanFriendlyString(10)
+	store.Zipcode = randomstring.HumanFriendlyString(5)
+	storeDAO.Upsert(ctx, store)
 
 	// Reload data
 	doc, err := firestoreClient.Collection(firestoreStoreCollection).Doc(id).Get(ctx)
@@ -112,39 +122,45 @@ func TestStoreUpdate(t *testing.T) {
 	cleanupStoreTestData(t, id)
 }
 
-func TestStoreDelete(t *testing.T) {
+func TestStoreDAOFirestoreDelete(t *testing.T) {
 	ctx := context.Background()
+	storeDAO := NewStoreDAOFirestore()
+
 	// Setup test data
 	id, _ := generateStoreTestData(t)
 
-	// Delete data
-	toDeleteStore := Store{
-		ID: id,
+	err := storeDAO.Delete(ctx, id)
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
 	}
-	toDeleteStore.Delete()
-	_, err := firestoreClient.Collection(firestoreStoreCollection).Doc(id).Get(ctx)
+
+	_, err = firestoreClient.Collection(firestoreStoreCollection).Doc(id).Get(ctx)
 	if grpc.Code(err) != codes.NotFound {
 		t.Log(err.Error())
 		t.Fail()
 	}
 }
 
-func TestStoreSearch(t *testing.T) {
+func TestStoreDAOFirestoreSearch(t *testing.T) {
+	ctx := context.Background()
+	storeDAO := NewStoreDAOFirestore()
+
 	// Setup test data
 	id, testData := generateStoreTestData(t)
 
-	searchedByNameStore := Store{
+	searchedByNameStore := model.Store{
 		Name: testData["name"],
 	}
-	storeList, err := searchedByNameStore.Search()
+	storeList, err := storeDAO.Search(ctx, &searchedByNameStore)
 	if err != nil {
 		t.Log(err.Error())
 		t.Fail()
 	}
-	assert.Equal(t, 1, len(storeList), "Didn't find the right amount of stores")
-	assert.Equal(t, testData["name"], storeList[0].Name, "Didn't find the right store name")
-	assert.Equal(t, testData["city"], storeList[0].City, "Didn't find the right store city")
-	assert.Equal(t, testData["zipcode"], storeList[0].Zipcode, "Didn't find the right store zipcode")
+	assert.Equal(t, 1, len(*storeList), "Didn't find the right amount of stores")
+	assert.Equal(t, testData["name"], (*storeList)[0].Name, "Didn't find the right store name")
+	assert.Equal(t, testData["city"], (*storeList)[0].City, "Didn't find the right store city")
+	assert.Equal(t, testData["zipcode"], (*storeList)[0].Zipcode, "Didn't find the right store zipcode")
 
 	// Cleanup test data
 	cleanupStoreTestData(t, id)
