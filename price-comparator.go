@@ -20,9 +20,8 @@ func main() {
 	app.Usage = "price-comparator service launcher"
 	app.Flags = []cli.Flag{
 		&cli.StringFlag{
-			Value:       daoType,
 			Name:        "dao-type",
-			Aliases:     []string{"dt"},
+			Value:       daoType,
 			Usage:       "Set the storage backend type to use for the service (only firestore available for now)",
 			Destination: &daoType,
 		},
