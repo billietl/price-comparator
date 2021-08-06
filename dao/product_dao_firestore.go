@@ -28,20 +28,17 @@ func (dao ProductDAOFirestore) Load(ctx context.Context, id string) (p *model.Pr
 	if err != nil {
 		return
 	}
-	p = &model.Product{
-		ID:   id,
-		Name: fp.Name,
-		Bio:  fp.Bio,
-	}
+	p = dao.toModel(&fp)
+	p.ID = id
 	return
 }
 
 func (dao ProductDAOFirestore) Upsert(ctx context.Context, product *model.Product) (p *model.Product, err error) {
-	pf := firestoreProduct{
-		Name: product.Name,
-		Bio:  product.Bio,
-	}
-	_, err = firestoreClient.Collection(firestoreProductCollection).Doc(product.ID).Set(ctx, pf)
+	pf := dao.fromModel(product)
+	_, err = firestoreClient.
+		Collection(firestoreProductCollection).
+		Doc(product.ID).
+		Set(ctx, pf)
 	if err != nil {
 		return
 	}
@@ -77,4 +74,20 @@ func (dao ProductDAOFirestore) Search(ctx context.Context, p *model.Product) (*[
 		result = append(result, *newProduct)
 	}
 	return &result, nil
+}
+
+func (dao ProductDAOFirestore) toModel(p *firestoreProduct) (product *model.Product) {
+	product = &model.Product{
+		Name: p.Name,
+		Bio:  p.Bio,
+	}
+	return
+}
+
+func (dao ProductDAOFirestore) fromModel(p *model.Product) (product *firestoreProduct) {
+	product = &firestoreProduct{
+		Name: p.Name,
+		Bio:  p.Bio,
+	}
+	return
 }

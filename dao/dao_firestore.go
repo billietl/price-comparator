@@ -12,7 +12,7 @@ import (
 
 var firestoreClient *firestore.Client
 
-func init() {
+func initFirestore() {
 	ctx := context.Background()
 	client, err := firestore.NewClient(ctx, "foobar")
 	if err != nil {

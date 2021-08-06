@@ -7,7 +7,7 @@ import (
 
 const firestoreStoreCollection = "store"
 
-type storeFirestore struct {
+type firestoreStore struct {
 	Name    string `firestore:"name"`
 	City    string `firestore:"city"`
 	Zipcode string `firestore:"zipcode"`
@@ -24,7 +24,7 @@ func (dao StoreDAOFirestore) Load(ctx context.Context, id string) (s *model.Stor
 	if err != nil {
 		return
 	}
-	fs := storeFirestore{}
+	fs := firestoreStore{}
 	err = d.DataTo(&fs)
 	if err != nil {
 		return
@@ -39,7 +39,7 @@ func (dao StoreDAOFirestore) Load(ctx context.Context, id string) (s *model.Stor
 }
 
 func (dao StoreDAOFirestore) Upsert(ctx context.Context, store *model.Store) (result *model.Store, err error) {
-	sf := storeFirestore{
+	sf := firestoreStore{
 		Name:    store.Name,
 		City:    store.City,
 		Zipcode: store.Zipcode,
@@ -86,4 +86,22 @@ func (dao StoreDAOFirestore) Search(ctx context.Context, s *model.Store) (storeL
 		result = append(result, *newStore)
 	}
 	return &result, nil
+}
+
+func (dao StoreDAOFirestore) fromModel(s *model.Store) (store *firestoreStore) {
+	store = &firestoreStore{
+		Name:    s.Name,
+		City:    s.City,
+		Zipcode: s.Zipcode,
+	}
+	return
+}
+
+func (dao StoreDAOFirestore) toModel(s *firestoreStore) (store *model.Store) {
+	store = &model.Store{
+		Name:    s.Name,
+		City:    s.City,
+		Zipcode: s.Zipcode,
+	}
+	return
 }
