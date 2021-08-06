@@ -17,8 +17,8 @@ func GetDAOBundle(daoType string) (bundle *DAOBundle, err error) {
 	switch daoType {
 	case "firestore":
 		initFirestore()
-		bundle.ProductDAO = ProductDAOFirestore{}
-		bundle.StoreDAO = StoreDAOFirestore{}
+		bundle.ProductDAO = NewProductDAOFirestore()
+		bundle.StoreDAO = NewStoreDAOFirestore()
 		return
 	}
 	return nil, ErrorDAONotFound

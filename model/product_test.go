@@ -17,6 +17,7 @@ func TestNewProductFields(t *testing.T) {
 
 	p := NewProduct(result["name"].(string), result["bio"].(bool))
 
+	assert.NotEqual(t, result["id"], "")
 	assert.Equal(t, result["name"], p.Name)
 	assert.Equal(t, result["bio"], p.Bio)
 }

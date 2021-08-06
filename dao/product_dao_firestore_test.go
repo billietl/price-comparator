@@ -15,6 +15,7 @@ import (
 
 func init() {
 	randomstring.Seed()
+	initFirestore()
 }
 
 func generateProductTestData(t *testing.T) (id string, result map[string]interface{}) {
