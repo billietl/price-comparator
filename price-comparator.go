@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 	"price-comparator/dao"
-	"price-comparator/model"
+	"price-comparator/web"
 
 	cli "github.com/urfave/cli/v2"
 )
@@ -15,32 +15,15 @@ var (
 )
 
 func run(c *cli.Context) error {
-	ctx := c.Context
-	usedDao, err := dao.GetDAOBundle(ctx, daoType)
+
+	usedDao, err := dao.GetDAOBundle(c.Context, daoType)
 	if err != nil {
 		log.Fatal("Error creating DAO of type \"" + daoType + "\" : " + err.Error())
 		return err
 	}
 
-	product := model.NewProduct("test", false)
-
-	err = usedDao.ProductDAO.Upsert(ctx, product)
-	if err != nil {
-		log.Fatal("Error creating product " + err.Error())
-		return err
-	}
-
-	_, err = usedDao.ProductDAO.Load(ctx, product.ID)
-	if err != nil {
-		log.Fatal("Error creating product " + err.Error())
-		return err
-	}
-
-	err = usedDao.ProductDAO.Delete(ctx, product.ID)
-	if err != nil {
-		log.Fatal("Error creating product " + err.Error())
-		return err
-	}
+	server := web.MakeServer(8080, usedDao)
+	log.Fatal(server.Run())
 
 	usedDao.Shutdown()
 	return nil

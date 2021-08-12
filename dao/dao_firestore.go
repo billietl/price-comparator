@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"os/signal"
-	"syscall"
 
 	"cloud.google.com/go/firestore"
 )
@@ -20,15 +18,6 @@ func initFirestore(ctx context.Context) {
 		os.Exit(1)
 	}
 	firestoreClient = client
-
-	sigs := make(chan os.Signal, 1)
-	done := make(chan bool, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-	go func() {
-		<-sigs
-		firestoreClient.Close()
-		done <- true
-	}()
 }
 
 func shutDownFirestoreClient() {
