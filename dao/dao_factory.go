@@ -1,6 +1,9 @@
 package dao
 
-import "errors"
+import (
+	"context"
+	"errors"
+)
 
 var (
 	// ErrorDAONotFound is used for unknown DAO type
@@ -10,15 +13,17 @@ var (
 type DAOBundle struct {
 	ProductDAO ProductDAO
 	StoreDAO   StoreDAO
+	Shutdown   func()
 }
 
-func GetDAOBundle(daoType string) (bundle *DAOBundle, err error) {
+func GetDAOBundle(ctx context.Context, daoType string) (bundle *DAOBundle, err error) {
 	bundle = &DAOBundle{}
 	switch daoType {
 	case "firestore":
-		initFirestore()
+		initFirestore(ctx)
 		bundle.ProductDAO = NewProductDAOFirestore()
 		bundle.StoreDAO = NewStoreDAOFirestore()
+		bundle.Shutdown = shutDownFirestoreClient
 		return
 	}
 	return nil, ErrorDAONotFound

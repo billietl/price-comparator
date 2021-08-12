@@ -3,6 +3,7 @@ package dao
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -12,8 +13,7 @@ import (
 
 var firestoreClient *firestore.Client
 
-func initFirestore() {
-	ctx := context.Background()
+func initFirestore(ctx context.Context) {
 	client, err := firestore.NewClient(ctx, "foobar")
 	if err != nil {
 		fmt.Print(err.Error())
@@ -29,4 +29,11 @@ func initFirestore() {
 		firestoreClient.Close()
 		done <- true
 	}()
+}
+
+func shutDownFirestoreClient() {
+	err := firestoreClient.Close()
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 }
