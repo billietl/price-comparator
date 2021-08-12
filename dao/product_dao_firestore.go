@@ -33,7 +33,7 @@ func (dao ProductDAOFirestore) Load(ctx context.Context, id string) (p *model.Pr
 	return
 }
 
-func (dao ProductDAOFirestore) Upsert(ctx context.Context, product *model.Product) (p *model.Product, err error) {
+func (dao ProductDAOFirestore) Upsert(ctx context.Context, product *model.Product) (err error) {
 	pf := dao.fromModel(product)
 	_, err = firestoreClient.
 		Collection(firestoreProductCollection).

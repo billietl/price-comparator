@@ -21,12 +21,27 @@ func run(c *cli.Context) error {
 		log.Fatal("Error creating DAO of type \"" + daoType + "\" : " + err.Error())
 		return err
 	}
+
 	product := model.NewProduct("test", false)
-	product, err = usedDao.ProductDAO.Upsert(ctx, product)
+
+	err = usedDao.ProductDAO.Upsert(ctx, product)
 	if err != nil {
 		log.Fatal("Error creating product " + err.Error())
 		return err
 	}
+
+	_, err = usedDao.ProductDAO.Load(ctx, product.ID)
+	if err != nil {
+		log.Fatal("Error creating product " + err.Error())
+		return err
+	}
+
+	err = usedDao.ProductDAO.Delete(ctx, product.ID)
+	if err != nil {
+		log.Fatal("Error creating product " + err.Error())
+		return err
+	}
+
 	usedDao.Shutdown()
 	return nil
 }

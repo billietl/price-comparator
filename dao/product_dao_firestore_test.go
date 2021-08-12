@@ -15,7 +15,7 @@ import (
 
 func init() {
 	randomstring.Seed()
-	initFirestore()
+	initFirestore(context.Background())
 }
 
 func generateProductTestData(t *testing.T) (id string, result map[string]interface{}) {
@@ -49,7 +49,7 @@ func TestProductDAOFirestoreCreate(t *testing.T) {
 		rand.Int()%2 == 1,
 	)
 
-	_, err := productDAO.Upsert(ctx, createdProduct)
+	err := productDAO.Upsert(ctx, createdProduct)
 	if err != nil {
 		t.Log(err.Error())
 		t.Fail()

@@ -48,7 +48,7 @@ func TestStoreDAOFirestoreCreate(t *testing.T) {
 		randomstring.HumanFriendlyString(5),
 	)
 
-	_, err := storeDAO.Upsert(ctx, createdStore)
+	err := storeDAO.Upsert(ctx, createdStore)
 	if err != nil {
 		t.Log(err.Error())
 		t.Fail()

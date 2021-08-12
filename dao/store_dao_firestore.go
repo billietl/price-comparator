@@ -38,7 +38,7 @@ func (dao StoreDAOFirestore) Load(ctx context.Context, id string) (s *model.Stor
 	return
 }
 
-func (dao StoreDAOFirestore) Upsert(ctx context.Context, store *model.Store) (result *model.Store, err error) {
+func (dao StoreDAOFirestore) Upsert(ctx context.Context, store *model.Store) (err error) {
 	sf := firestoreStore{
 		Name:    store.Name,
 		City:    store.City,
@@ -48,7 +48,6 @@ func (dao StoreDAOFirestore) Upsert(ctx context.Context, store *model.Store) (re
 	if err != nil {
 		return
 	}
-	result = store
 	return
 }
 
