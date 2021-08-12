@@ -9,25 +9,30 @@ import (
 
 type Server struct {
 	port int
-	dao  *dao.DAOBundle
+	router *Router
 }
 
 func MakeServer(port int, dao *dao.DAOBundle) (server *Server) {
+	router := NewRouter()
+
+	router.RegisterController(
+		NewProductController(dao),
+		"/api/v1/product",
+	)
+
 	return &Server{
 		port: port,
-		dao:  dao,
+		router: router,
 	}
 }
 
 func (serv Server) Run() error {
 
-	router := makeRouter()
-
 	log.Print(fmt.Sprintf("Starting server on port %d", serv.port))
 	log.Fatal(
 		http.ListenAndServe(
 			fmt.Sprintf(":%d", serv.port),
-			router,
+			serv.router,
 		),
 	)
 	log.Print("Shuting server")

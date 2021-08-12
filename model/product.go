@@ -18,6 +18,10 @@ func NewProduct(name string, bio bool) *Product {
 	}
 }
 
+func (p *Product) GenerateID() {
+	p.ID = uuid.New().String()
+}
+
 func (p Product) Equals(product Product) bool {
 	return p.ID == product.ID
 }

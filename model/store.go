@@ -20,6 +20,10 @@ func NewStore(name, city, zipcode string) *Store {
 	}
 }
 
+func (s *Store) GenerateID() {
+	s.ID = uuid.New().String()
+}
+
 func (s Store) Equals(store Store) bool {
 	return s.ID == store.ID
 }

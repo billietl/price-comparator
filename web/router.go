@@ -2,8 +2,18 @@ package web
 
 import "github.com/gorilla/mux"
 
-func makeRouter() (router *mux.Router) {
-	router = mux.NewRouter()
-	setupProductRouter(router.PathPrefix("/product").Subrouter())
+type Router struct {
+	*mux.Router
+}
+
+func NewRouter() (rtr *Router) {
+	rtr = &Router{
+		Router: mux.NewRouter(),
+	}
 	return
+}
+
+func (r Router) RegisterController(ctrl Controller, path string) (err error) {
+	ctrl.SetupRouter(r.PathPrefix(path).Subrouter())
+	return nil
 }
