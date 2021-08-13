@@ -22,6 +22,11 @@ func (p *Product) GenerateID() {
 	p.ID = uuid.New().String()
 }
 
-func (p Product) Equals(product Product) bool {
+func (p Product) Equals(product *Product) bool {
 	return p.ID == product.ID
+}
+
+func (p Product) ValueEquals(product *Product) bool {
+	return p.Name == product.Name &&
+		p.Bio == product.Bio
 }

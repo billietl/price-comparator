@@ -38,8 +38,5 @@ func TestCreateProductHandler(t *testing.T) {
 	// check
 	assert.Equal(t, res.Code, http.StatusOK)
 	assert.Equal(t, "application/json; charset=utf-8", res.Result().Header.Get("content-type"))
-
-	// assert.Equal(t, reqProduct.ID, resProduct.ID)
-	assert.Equal(t, reqProduct.Name, resProduct.Name)
-	assert.Equal(t, reqProduct.Bio, resProduct.Bio)
+	assert.Equal(t, true, reqProduct.ValueEquals(&resProduct))
 }

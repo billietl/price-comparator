@@ -24,6 +24,12 @@ func (s *Store) GenerateID() {
 	s.ID = uuid.New().String()
 }
 
-func (s Store) Equals(store Store) bool {
+func (s Store) Equals(store *Store) bool {
 	return s.ID == store.ID
+}
+
+func (s Store) ValueEquals(store *Store) bool {
+	return s.Name == store.Name &&
+		s.City == store.City &&
+		s.Zipcode == store.Zipcode
 }
