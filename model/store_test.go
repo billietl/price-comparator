@@ -30,3 +30,14 @@ func TestNewStoreUUID(t *testing.T) {
 
 	assert.NotEqual(t, s1.ID, s2.ID)
 }
+
+func TestStoreGenerateID(t *testing.T) {
+	t.Parallel()
+
+	store := NewStore("", "", "")
+	id1 := store.ID
+	store.GenerateID()
+	id2 := store.ID
+
+	assert.NotEqual(t, id1, id2)
+}

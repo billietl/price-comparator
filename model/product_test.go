@@ -30,3 +30,14 @@ func TestNewProductUUID(t *testing.T) {
 
 	assert.NotEqual(t, p1.ID, p2.ID)
 }
+
+func TestProductGenerateID(t *testing.T) {
+	t.Parallel()
+
+	product := NewProduct("", false)
+	id1 := product.ID
+	product.GenerateID()
+	id2 := product.ID
+
+	assert.NotEqual(t, id1, id2)
+}
