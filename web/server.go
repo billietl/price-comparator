@@ -8,7 +8,7 @@ import (
 )
 
 type Server struct {
-	port int
+	port   int
 	router *Router
 }
 
@@ -21,7 +21,7 @@ func MakeServer(port int, dao *dao.DAOBundle) (server *Server) {
 	)
 
 	return &Server{
-		port: port,
+		port:   port,
 		router: router,
 	}
 }

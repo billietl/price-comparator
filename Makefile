@@ -9,3 +9,8 @@ test:
 
 firestore:
 	gcloud beta emulators firestore start --host-port=127.0.0.1:8081
+
+format:
+	goimports -w ./dao ./model ./web ./price-comparator.go
+	go vet ./...
+	go fmt ./...

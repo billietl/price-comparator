@@ -1,23 +1,24 @@
 package web
 
 import (
-	"net/http"
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 
-	"github.com/gorilla/mux"
-    "google.golang.org/grpc"
-    "google.golang.org/grpc/codes"
 	"price-comparator/dao"
 	"price-comparator/model"
+
+	"github.com/gorilla/mux"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 )
 
 type ProductHandler struct {
 	Dao *dao.DAOBundle
 }
 
-func NewProductController(dao *dao.DAOBundle) *ProductHandler{
+func NewProductController(dao *dao.DAOBundle) *ProductHandler {
 	return &ProductHandler{
 		Dao: dao,
 	}
@@ -25,12 +26,12 @@ func NewProductController(dao *dao.DAOBundle) *ProductHandler{
 
 func (ph ProductHandler) SetupRouter(router *mux.Router) {
 	router.
-		Methods("GET").
+		Methods(http.MethodGet).
 		Path("/{id}").
 		Name("Get a single product").
 		HandlerFunc(ph.GetProductHandler)
 	router.
-		Methods("PUT").
+		Methods(http.MethodPut).
 		Path("/").
 		Name("Create a single product").
 		HandlerFunc(ph.CreateProductHandler)
