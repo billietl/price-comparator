@@ -10,6 +10,7 @@ const firestoreProductCollection = "product"
 type firestoreProduct struct {
 	Name string `firestore:"name"`
 	Bio  bool   `firestore:"bio"`
+	Vrac bool   `firestore:"vrac"`
 }
 
 type ProductDAOFirestore struct{}
@@ -74,6 +75,7 @@ func (dao ProductDAOFirestore) toModel(p *firestoreProduct) (product *model.Prod
 	product = &model.Product{
 		Name: p.Name,
 		Bio:  p.Bio,
+		Vrac: p.Vrac,
 	}
 	return
 }
@@ -82,6 +84,7 @@ func (dao ProductDAOFirestore) fromModel(p *model.Product) (product *firestorePr
 	product = &firestoreProduct{
 		Name: p.Name,
 		Bio:  p.Bio,
+		Vrac: p.Vrac,
 	}
 	return
 }

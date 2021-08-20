@@ -22,6 +22,7 @@ func generateProductTestData(t *testing.T) (id string, result map[string]interfa
 	result = map[string]interface{}{}
 	result["name"] = randomstring.HumanFriendlyString(10)
 	result["bio"] = rand.Int()%2 == 1
+	result["vrac"] = rand.Int()%2 == 1
 
 	ctx := context.Background()
 	doc, _, err := firestoreClient.Collection(firestoreProductCollection).Add(ctx, result)
@@ -47,6 +48,7 @@ func TestProductDAOFirestoreCreate(t *testing.T) {
 	createdProduct := model.NewProduct(
 		randomstring.HumanFriendlyString(10),
 		rand.Int()%2 == 1,
+		rand.Int()%2 == 1,
 	)
 
 	err := productDAO.Upsert(ctx, createdProduct)
@@ -64,6 +66,7 @@ func TestProductDAOFirestoreCreate(t *testing.T) {
 	docData := doc.Data()
 	assert.Equal(t, createdProduct.Name, docData["name"])
 	assert.Equal(t, createdProduct.Bio, docData["bio"])
+	assert.Equal(t, createdProduct.Vrac, docData["vrac"])
 
 	// Cleanup test data
 	cleanupProductTestData(t, createdProduct.ID)
@@ -83,6 +86,7 @@ func TestProductDAOFirestoreRead(t *testing.T) {
 	}
 	assert.Equal(t, testData["name"], loadedProduct.Name, "Didn't find the right product name")
 	assert.Equal(t, testData["bio"], loadedProduct.Bio, "Didn't find the right bio label")
+	assert.Equal(t, testData["vrac"], loadedProduct.Vrac, "Didn't find the right vrac label")
 	assert.NotEqual(t, "", loadedProduct.ID, "Loaded store didn't have ID")
 
 	// Cleanup test data
@@ -103,6 +107,7 @@ func TestProductDAOFirestoreUpdate(t *testing.T) {
 	}
 	product.Name = randomstring.HumanFriendlyString(10)
 	product.Bio = !product.Bio
+	product.Vrac = !product.Vrac
 	productDAO.Upsert(ctx, product)
 
 	// Reload data
@@ -114,6 +119,7 @@ func TestProductDAOFirestoreUpdate(t *testing.T) {
 	docData := doc.Data()
 	assert.NotEqual(t, docData["name"], testData["name"])
 	assert.NotEqual(t, docData["bio"], testData["bio"])
+	assert.NotEqual(t, docData["vrac"], testData["vrac"])
 
 	// Cleanup test data
 	cleanupProductTestData(t, id)
@@ -162,6 +168,7 @@ func TestProductDAOFirestoreSearch(t *testing.T) {
 	}
 	assert.Equal(t, testData["name"], (*productList)[0].Name, "Didn't find the right product name")
 	assert.Equal(t, testData["bio"], (*productList)[0].Bio, "Didn't find the right product bio label")
+	assert.Equal(t, testData["vrac"], (*productList)[0].Vrac, "Didn't find the right product vrac label")
 
 	// Cleanup test data
 	cleanupStoreTestData(t, id)
