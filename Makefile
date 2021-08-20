@@ -14,6 +14,9 @@ lint:
 	golint ./dao ./model ./web
 	golint price-comparator.go
 
+superlint:
+	docker run -it --rm -v $$PWD:/tmp/lint -e RUN_LOCAL=true github/super-linter:v4 | tee target/superlint.log
+
 format:
 	goimports -w ./dao ./model ./web ./price-comparator.go
 	go vet ./...

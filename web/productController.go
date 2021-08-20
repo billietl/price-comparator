@@ -2,7 +2,6 @@ package web
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -55,7 +54,7 @@ func (ph ProductHandler) CreateProductHandler(w http.ResponseWriter, r *http.Req
 	err := json.NewDecoder(r.Body).Decode(&product)
 	if err != nil {
 		log.Printf("Could not decode request")
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -64,14 +63,18 @@ func (ph ProductHandler) CreateProductHandler(w http.ResponseWriter, r *http.Req
 	err = ph.Dao.ProductDAO.Upsert(r.Context(), &product)
 	if err != nil {
 		log.Printf("Could not upsert product")
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("content-type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(&product)
+	err = json.NewEncoder(w).Encode(&product)
+	if err != nil {
+		log.Printf("Error writing response")
+		log.Print(err.Error())
+	}
 }
 
 func (ph ProductHandler) GetProductHandler(w http.ResponseWriter, r *http.Request) {
@@ -82,20 +85,25 @@ func (ph ProductHandler) GetProductHandler(w http.ResponseWriter, r *http.Reques
 	product, err := ph.Dao.ProductDAO.Load(r.Context(), id)
 	if err != nil {
 		if grpc.Code(err) == codes.NotFound {
-			log.Printf(fmt.Sprintf("Product not found : %s", id))
-			log.Printf(err.Error())
+			log.Printf("Product not found : %s", id)
+			log.Print(err.Error())
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
-		log.Printf(fmt.Sprintf("Error fetching product %s", id))
-		log.Printf(err.Error())
+		log.Printf("Error fetching product %s", id)
+		log.Print(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("content-type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(&product)
+	err = json.NewEncoder(w).Encode(&product)
+	if err != nil {
+		log.Printf("Error writing response")
+		log.Print(err.Error())
+	}
+
 }
 
 func (ph ProductHandler) DeleteProductHandler(w http.ResponseWriter, r *http.Request) {
@@ -105,8 +113,8 @@ func (ph ProductHandler) DeleteProductHandler(w http.ResponseWriter, r *http.Req
 
 	err := ph.Dao.ProductDAO.Delete(r.Context(), id)
 	if err != nil {
-		log.Printf(fmt.Sprintf("Error fetching product %s", id))
-		log.Printf(err.Error())
+		log.Printf("Error fetching product %s", id)
+		log.Print(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -129,7 +137,7 @@ func (ph ProductHandler) UpdateProductHandler(w http.ResponseWriter, r *http.Req
 	err := json.NewDecoder(r.Body).Decode(&product)
 	if err != nil {
 		log.Printf("Could not decode request")
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -138,12 +146,16 @@ func (ph ProductHandler) UpdateProductHandler(w http.ResponseWriter, r *http.Req
 	err = ph.Dao.ProductDAO.Upsert(r.Context(), &product)
 	if err != nil {
 		log.Printf("Could not upsert product")
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("content-type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(&product)
+	err = json.NewEncoder(w).Encode(&product)
+	if err != nil {
+		log.Printf("Error writing response")
+		log.Print(err.Error())
+	}
 }
