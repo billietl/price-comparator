@@ -40,6 +40,11 @@ func (ph ProductHandler) SetupRouter(router *mux.Router) {
 		Path("/{id}").
 		Name("Delete a single product").
 		HandlerFunc(ph.DeleteProductHandler)
+	router.
+		Methods(http.MethodPatch).
+		Path("/{id}").
+		Name("Update a single product").
+		HandlerFunc(ph.UpdateProductHandler)
 }
 
 func (ph ProductHandler) CreateProductHandler(w http.ResponseWriter, r *http.Request) {
@@ -105,6 +110,40 @@ func (ph ProductHandler) DeleteProductHandler(w http.ResponseWriter, r *http.Req
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	
+
 	w.WriteHeader(http.StatusOK)
+}
+
+func (ph ProductHandler) UpdateProductHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	id := mux.Vars(r)["id"]
+	if id == "" {
+		log.Printf("No product ID found in request")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	product := model.Product{}
+
+	err := json.NewDecoder(r.Body).Decode(&product)
+	if err != nil {
+		log.Printf("Could not decode request")
+		log.Printf(err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	product.ID = id
+	err = ph.Dao.ProductDAO.Upsert(r.Context(), &product)
+	if err != nil {
+		log.Printf("Could not upsert product")
+		log.Printf(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("content-type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(&product)
 }
