@@ -156,7 +156,7 @@ func TestProductDAOFirestoreSearch(t *testing.T) {
 		t.Log(err.Error())
 		t.Fail()
 	}
-	if ! assert.Equal(t, 1, len(*productList), "Didn't find the right amount of products") {
+	if !assert.Equal(t, 1, len(*productList), "Didn't find the right amount of products") {
 		t.Fail()
 		return
 	}
