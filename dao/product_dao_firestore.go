@@ -48,13 +48,18 @@ func (dao ProductDAOFirestore) Delete(ctx context.Context, id string) (err error
 	return
 }
 
-func (dao ProductDAOFirestore) Search(ctx context.Context, p *model.Product) (*[]model.Product, error) {
+func (dao ProductDAOFirestore) Search(ctx context.Context, p *model.Product, searchBio bool, searchVrac bool) (*[]model.Product, error) {
 	// Build query
 	query := firestoreClient.Collection(firestoreProductCollection).Select()
 	if p.Name != "" {
 		query = query.Where("name", "==", p.Name)
 	}
-	query = query.Where("bio", "==", p.Bio)
+	if searchBio {
+		query = query.Where("bio", "==", p.Bio)
+	}
+	if searchVrac {
+		query = query.Where("vrac", "==", p.Vrac)
+	}
 	// Retrieve documents
 	docs, err := query.Documents(ctx).GetAll()
 	if err != nil {

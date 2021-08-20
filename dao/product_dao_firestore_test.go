@@ -157,7 +157,7 @@ func TestProductDAOFirestoreSearch(t *testing.T) {
 	searchedByNameProduct := model.Product{
 		Name: testData["name"].(string),
 	}
-	productList, err := productDAO.Search(ctx, &searchedByNameProduct)
+	productList, err := productDAO.Search(ctx, &searchedByNameProduct, false, false)
 	if err != nil {
 		t.Log(err.Error())
 		t.Fail()
