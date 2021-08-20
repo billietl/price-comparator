@@ -35,6 +35,11 @@ func (ph ProductHandler) SetupRouter(router *mux.Router) {
 		Path("/").
 		Name("Create a single product").
 		HandlerFunc(ph.CreateProductHandler)
+	router.
+		Methods(http.MethodDelete).
+		Path("/{id}").
+		Name("Delete a single product").
+		HandlerFunc(ph.DeleteProductHandler)
 }
 
 func (ph ProductHandler) CreateProductHandler(w http.ResponseWriter, r *http.Request) {
@@ -86,4 +91,20 @@ func (ph ProductHandler) GetProductHandler(w http.ResponseWriter, r *http.Reques
 	w.Header().Set("content-type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(&product)
+}
+
+func (ph ProductHandler) DeleteProductHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	id := mux.Vars(r)["id"]
+
+	err := ph.Dao.ProductDAO.Delete(r.Context(), id)
+	if err != nil {
+		log.Printf(fmt.Sprintf("Error fetching product %s", id))
+		log.Printf(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	
+	w.WriteHeader(http.StatusOK)
 }
