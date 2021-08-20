@@ -16,7 +16,7 @@ import (
 
 func TestCreateProductHandler(t *testing.T) {
 	// init controller
-	dao, err := dao.GetDAOBundle(context.Background(), "firestore")
+	dao, err := dao.GetBundle(context.Background(), "firestore")
 	if err != nil {
 		t.Log(err.Error())
 		t.Fail()
@@ -44,7 +44,7 @@ func TestCreateProductHandler(t *testing.T) {
 
 func TestGetProductHandler(t *testing.T) {
 	// init controller
-	dao, err := dao.GetDAOBundle(context.Background(), "firestore")
+	dao, err := dao.GetBundle(context.Background(), "firestore")
 	if err != nil {
 		t.Log(err.Error())
 		t.Fail()
@@ -75,7 +75,7 @@ func TestGetProductHandler(t *testing.T) {
 
 func TestDeleteProductHandler(t *testing.T) {
 	// init controller
-	dao, err := dao.GetDAOBundle(context.Background(), "firestore")
+	dao, err := dao.GetBundle(context.Background(), "firestore")
 	if err != nil {
 		t.Log(err.Error())
 		t.Fail()
@@ -98,7 +98,7 @@ func TestDeleteProductHandler(t *testing.T) {
 
 func TestUpdateProductHandler(t *testing.T) {
 	// init controller
-	dao, err := dao.GetDAOBundle(context.Background(), "firestore")
+	dao, err := dao.GetBundle(context.Background(), "firestore")
 	if err != nil {
 		t.Log(err.Error())
 		t.Fail()

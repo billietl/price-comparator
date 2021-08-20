@@ -45,11 +45,7 @@ func TestProductDAOFirestoreCreate(t *testing.T) {
 	productDAO := NewProductDAOFirestore()
 
 	// Upsert new product
-	createdProduct := model.NewProduct(
-		randomstring.HumanFriendlyString(10),
-		rand.Int()%2 == 1,
-		rand.Int()%2 == 1,
-	)
+	createdProduct := model.GenerateRandomProduct()
 
 	err := productDAO.Upsert(ctx, createdProduct)
 	if err != nil {

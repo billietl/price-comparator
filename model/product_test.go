@@ -69,29 +69,6 @@ func TestProductEquals(t *testing.T) {
 
 	assert.Equal(t, false, product1.Equals(product2))
 	assert.Equal(t, true, product1.Equals(product3))
-}
-
-func TestProductValueEquals(t *testing.T) {
-	t.Parallel()
-
-	product1 := &Product{
-		ID:   uuid.New().String(),
-		Name: randomstring.HumanFriendlyString(10),
-		Bio:  rand.Int()%2 == 1,
-		Vrac: rand.Int()%2 == 1,
-	}
-	product2 := &Product{
-		ID:   uuid.New().String(),
-		Name: product1.Name,
-		Bio:  product1.Bio,
-		Vrac: product1.Vrac,
-	}
-	product3 := &Product{
-		ID:   product1.ID,
-		Name: randomstring.HumanFriendlyString(10),
-		Bio:  !product1.Bio,
-		Vrac: !product1.Vrac,
-	}
 
 	assert.Equal(t, true, product1.ValueEquals(product2))
 	assert.Equal(t, false, product1.ValueEquals(product3))

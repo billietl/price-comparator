@@ -12,7 +12,7 @@ type Server struct {
 	router *Router
 }
 
-func MakeServer(port int, dao *dao.DAOBundle) (server *Server) {
+func MakeServer(port int, dao *dao.Bundle) (server *Server) {
 	router := NewRouter()
 
 	router.RegisterController(

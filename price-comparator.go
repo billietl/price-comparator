@@ -10,7 +10,6 @@ import (
 )
 
 var (
-	Version      string
 	daoType      = "firestore"
 	gcpProjectID = ""
 )
@@ -20,7 +19,7 @@ func run(c *cli.Context) error {
 		os.Setenv("GOOGLE_PROJECT_ID", gcpProjectID)
 	}
 
-	usedDao, err := dao.GetDAOBundle(c.Context, daoType)
+	usedDao, err := dao.GetBundle(c.Context, daoType)
 	if err != nil {
 		log.Fatal("Error creating DAO of type \"" + daoType + "\" : " + err.Error())
 		return err

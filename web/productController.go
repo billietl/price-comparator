@@ -15,10 +15,10 @@ import (
 )
 
 type ProductHandler struct {
-	Dao *dao.DAOBundle
+	Dao *dao.Bundle
 }
 
-func NewProductController(dao *dao.DAOBundle) *ProductHandler {
+func NewProductController(dao *dao.Bundle) *ProductHandler {
 	return &ProductHandler{
 		Dao: dao,
 	}

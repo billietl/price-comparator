@@ -68,29 +68,6 @@ func TestStoreEquals(t *testing.T) {
 
 	assert.Equal(t, false, store1.Equals(store2))
 	assert.Equal(t, true, store1.Equals(store3))
-}
-
-func TestStoreValueEquals(t *testing.T) {
-	t.Parallel()
-
-	store1 := &Store{
-		ID:      uuid.New().String(),
-		Name:    randomstring.HumanFriendlyString(10),
-		City:    randomstring.HumanFriendlyString(10),
-		Zipcode: randomstring.HumanFriendlyString(5),
-	}
-	store2 := &Store{
-		ID:      store1.ID,
-		Name:    store1.Name,
-		City:    store1.City,
-		Zipcode: store1.Zipcode,
-	}
-	store3 := &Store{
-		ID:      store1.ID,
-		Name:    randomstring.HumanFriendlyString(10),
-		City:    randomstring.HumanFriendlyString(10),
-		Zipcode: randomstring.HumanFriendlyString(5),
-	}
 
 	assert.Equal(t, true, store1.ValueEquals(store2))
 	assert.Equal(t, false, store1.ValueEquals(store3))

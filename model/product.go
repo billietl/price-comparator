@@ -1,7 +1,9 @@
 package model
 
 import (
+	"math/rand"
 	"github.com/google/uuid"
+	"github.com/xyproto/randomstring"
 )
 
 type Product struct {
@@ -32,4 +34,12 @@ func (p Product) ValueEquals(product *Product) bool {
 	return p.Name == product.Name &&
 		p.Bio == product.Bio &&
 		p.Vrac == product.Vrac
+}
+
+func GenerateRandomProduct() *Product {
+	return NewProduct(
+		randomstring.HumanFriendlyString(10),
+		rand.Int()%2 == 1,
+		rand.Int()%2 == 1,
+	)
 }

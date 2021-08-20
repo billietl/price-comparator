@@ -10,14 +10,14 @@ var (
 	ErrorDAONotFound = errors.New("unknown DAO type")
 )
 
-type DAOBundle struct {
+type Bundle struct {
 	ProductDAO ProductDAO
 	StoreDAO   StoreDAO
 	Shutdown   func()
 }
 
-func GetDAOBundle(ctx context.Context, daoType string) (bundle *DAOBundle, err error) {
-	bundle = &DAOBundle{}
+func GetBundle(ctx context.Context, daoType string) (bundle *Bundle, err error) {
+	bundle = &Bundle{}
 	switch daoType {
 	case "firestore":
 		initFirestore(ctx)
