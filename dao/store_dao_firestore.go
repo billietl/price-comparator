@@ -45,17 +45,11 @@ func (dao StoreDAOFirestore) Upsert(ctx context.Context, store *model.Store) (er
 		Zipcode: store.Zipcode,
 	}
 	_, err = firestoreClient.Collection(firestoreStoreCollection).Doc(store.ID).Set(ctx, sf)
-	if err != nil {
-		return
-	}
 	return
 }
 
 func (dao StoreDAOFirestore) Delete(ctx context.Context, id string) (err error) {
 	_, err = firestoreClient.Collection(firestoreStoreCollection).Doc(id).Delete(ctx)
-	if err != nil {
-		return
-	}
 	return
 }
 

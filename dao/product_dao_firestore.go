@@ -39,17 +39,11 @@ func (dao ProductDAOFirestore) Upsert(ctx context.Context, product *model.Produc
 		Collection(firestoreProductCollection).
 		Doc(product.ID).
 		Set(ctx, pf)
-	if err != nil {
-		return
-	}
 	return
 }
 
 func (dao ProductDAOFirestore) Delete(ctx context.Context, id string) (err error) {
 	_, err = firestoreClient.Collection(firestoreProductCollection).Doc(id).Delete(ctx)
-	if err != nil {
-		return
-	}
 	return
 }
 
