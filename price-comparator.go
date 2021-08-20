@@ -10,11 +10,15 @@ import (
 )
 
 var (
-	Version string
-	daoType = "firestore"
+	Version      string
+	daoType      = "firestore"
+	gcpProjectID = ""
 )
 
 func run(c *cli.Context) error {
+	if gcpProjectID != "" {
+		os.Setenv("GOOGLE_PROJECT_ID", gcpProjectID)
+	}
 
 	usedDao, err := dao.GetDAOBundle(c.Context, daoType)
 	if err != nil {
@@ -40,6 +44,12 @@ func main() {
 			Value:       daoType,
 			Usage:       "Set the storage backend type to use for the service (only firestore available for now)",
 			Destination: &daoType,
+		},
+		&cli.StringFlag{
+			Name:        "gcp-project-id",
+			Value:       gcpProjectID,
+			Usage:       "Set the storage backend type to use for the service (only firestore available for now)",
+			Destination: &gcpProjectID,
 		},
 	}
 	err := app.Run(os.Args)

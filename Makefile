@@ -1,5 +1,5 @@
 run:
-	FIRESTORE_EMULATOR_HOST=127.0.0.1:8081 go run price-comparator.go
+	GOOGLE_PROJECT_ID=price-comparator-dev go run price-comparator.go
 
 build:
 	go build -o target/price-comparator price-comparator.go

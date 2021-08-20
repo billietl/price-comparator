@@ -12,7 +12,11 @@ import (
 var firestoreClient *firestore.Client
 
 func initFirestore(ctx context.Context) {
-	client, err := firestore.NewClient(ctx, "foobar")
+	projectID := os.Getenv("GOOGLE_PROJECT_ID")
+	if projectID == "" {
+		projectID = "foobar"
+	}
+	client, err := firestore.NewClient(ctx, projectID)
 	if err != nil {
 		fmt.Print(err.Error())
 		os.Exit(1)

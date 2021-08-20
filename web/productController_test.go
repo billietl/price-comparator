@@ -23,7 +23,7 @@ func TestCreateProductHandler(t *testing.T) {
 	}
 	ctrl := NewProductController(dao)
 	// create a mock product
-	reqProduct := model.NewProduct("foobar", true)
+	reqProduct := model.NewProduct("foobar", true, false)
 	var resProduct model.Product
 	// create mock http stuff
 	body, _ := json.Marshal(reqProduct)
@@ -51,7 +51,7 @@ func TestGetProductHandler(t *testing.T) {
 	}
 	ctrl := NewProductController(dao)
 	// create a mock product
-	reqProduct := model.NewProduct("foobar", true)
+	reqProduct := model.NewProduct("foobar", true, false)
 	var resProduct model.Product
 	// persist the mock product
 	dao.ProductDAO.Upsert(context.Background(), reqProduct)
@@ -82,7 +82,7 @@ func TestDeleteProductHandler(t *testing.T) {
 	}
 	ctrl := NewProductController(dao)
 	// create a mock product
-	reqProduct := model.NewProduct("foobar", true)
+	reqProduct := model.NewProduct("foobar", true, false)
 	// persist the mock product
 	dao.ProductDAO.Upsert(context.Background(), reqProduct)
 	// create mock http stuff
@@ -105,7 +105,7 @@ func TestUpdateProductHandler(t *testing.T) {
 	}
 	ctrl := NewProductController(dao)
 	// create a mock product
-	reqProduct := model.NewProduct("foobar", true)
+	reqProduct := model.NewProduct("foobar", true, false)
 	var resProduct model.Product
 	// persist the mock product
 	dao.ProductDAO.Upsert(context.Background(), reqProduct)
