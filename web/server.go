@@ -20,6 +20,11 @@ func MakeServer(port int, dao *dao.Bundle) (server *Server) {
 		"/api/v1/product",
 	)
 
+	router.RegisterController(
+		NewStoreController(dao),
+		"/api/v1/store",
+	)
+
 	return &Server{
 		port:   port,
 		router: router,

@@ -4,7 +4,7 @@ run:
 build:
 	go build -o target/price-comparator price-comparator.go
 
-test:
+test: format
 	FIRESTORE_EMULATOR_HOST=127.0.0.1:8081 go test -v ./...
 
 firestore:

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-
 	"price-comparator/dao"
 	"price-comparator/model"
 
@@ -13,45 +12,45 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-type ProductController struct {
+type StoreController struct {
 	Dao *dao.Bundle
 }
 
-func NewProductController(dao *dao.Bundle) *ProductController {
-	return &ProductController{
+func NewStoreController(dao *dao.Bundle) *StoreController {
+	return &StoreController{
 		Dao: dao,
 	}
 }
 
-func (ph ProductController) SetupRouter(router *mux.Router) {
+func (this StoreController) SetupRouter(router *mux.Router) {
 	router.
 		Methods(http.MethodGet).
 		Path("/{id}").
-		Name("Get a single product").
-		HandlerFunc(ph.GetProductController)
+		Name("Get a single store").
+		HandlerFunc(this.GetStoreController)
 	router.
 		Methods(http.MethodPut).
 		Path("/").
-		Name("Create a single product").
-		HandlerFunc(ph.CreateProductController)
+		Name("Create a single store").
+		HandlerFunc(this.CreateStoreController)
 	router.
 		Methods(http.MethodDelete).
 		Path("/{id}").
-		Name("Delete a single product").
-		HandlerFunc(ph.DeleteProductController)
+		Name("Delete a single store").
+		HandlerFunc(this.DeleteStoreController)
 	router.
 		Methods(http.MethodPatch).
 		Path("/{id}").
-		Name("Update a single product").
-		HandlerFunc(ph.UpdateProductController)
+		Name("Update a single store").
+		HandlerFunc(this.UpdateStoreController)
 }
 
-func (ph ProductController) CreateProductController(w http.ResponseWriter, r *http.Request) {
+func (this StoreController) CreateStoreController(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	product := model.Product{}
+	store := model.Store{}
 
-	err := json.NewDecoder(r.Body).Decode(&product)
+	err := json.NewDecoder(r.Body).Decode(&store)
 	if err != nil {
 		log.Printf("Could not decode request")
 		log.Print(err.Error())
@@ -59,10 +58,10 @@ func (ph ProductController) CreateProductController(w http.ResponseWriter, r *ht
 		return
 	}
 
-	product.GenerateID()
-	err = ph.Dao.ProductDAO.Upsert(r.Context(), &product)
+	store.GenerateID()
+	err = this.Dao.StoreDAO.Upsert(r.Context(), &store)
 	if err != nil {
-		log.Printf("Could not upsert product")
+		log.Printf("Could not upsert store")
 		log.Print(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -70,27 +69,27 @@ func (ph ProductController) CreateProductController(w http.ResponseWriter, r *ht
 
 	w.Header().Set("content-type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
-	err = json.NewEncoder(w).Encode(&product)
+	err = json.NewEncoder(w).Encode(&store)
 	if err != nil {
 		log.Printf("Error writing response")
 		log.Print(err.Error())
 	}
 }
 
-func (ph ProductController) GetProductController(w http.ResponseWriter, r *http.Request) {
+func (this StoreController) GetStoreController(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	id := mux.Vars(r)["id"]
 
-	product, err := ph.Dao.ProductDAO.Load(r.Context(), id)
+	store, err := this.Dao.StoreDAO.Load(r.Context(), id)
 	if err != nil {
 		if grpc.Code(err) == codes.NotFound {
-			log.Printf("Product not found : %s", id)
+			log.Printf("Store not found : %s", id)
 			log.Print(err.Error())
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
-		log.Printf("Error fetching product %s", id)
+		log.Printf("Error fetching store %s", id)
 		log.Print(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -98,43 +97,26 @@ func (ph ProductController) GetProductController(w http.ResponseWriter, r *http.
 
 	w.Header().Set("content-type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
-	err = json.NewEncoder(w).Encode(&product)
+	err = json.NewEncoder(w).Encode(&store)
 	if err != nil {
 		log.Printf("Error writing response")
 		log.Print(err.Error())
 	}
-
 }
 
-func (ph ProductController) DeleteProductController(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
-	id := mux.Vars(r)["id"]
-
-	err := ph.Dao.ProductDAO.Delete(r.Context(), id)
-	if err != nil {
-		log.Printf("Error deleting product %s", id)
-		log.Print(err.Error())
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-}
-
-func (ph ProductController) UpdateProductController(w http.ResponseWriter, r *http.Request) {
+func (this StoreController) UpdateStoreController(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	id := mux.Vars(r)["id"]
 	if id == "" {
-		log.Printf("No product ID found in request")
+		log.Printf("No store ID found in request")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	product := model.Product{}
+	store := model.Store{}
 
-	err := json.NewDecoder(r.Body).Decode(&product)
+	err := json.NewDecoder(r.Body).Decode(&store)
 	if err != nil {
 		log.Printf("Could not decode request")
 		log.Print(err.Error())
@@ -142,10 +124,10 @@ func (ph ProductController) UpdateProductController(w http.ResponseWriter, r *ht
 		return
 	}
 
-	product.ID = id
-	err = ph.Dao.ProductDAO.Upsert(r.Context(), &product)
+	store.ID = id
+	err = this.Dao.StoreDAO.Upsert(r.Context(), &store)
 	if err != nil {
-		log.Printf("Could not upsert product")
+		log.Printf("Could not upsert store")
 		log.Print(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -153,9 +135,25 @@ func (ph ProductController) UpdateProductController(w http.ResponseWriter, r *ht
 
 	w.Header().Set("content-type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
-	err = json.NewEncoder(w).Encode(&product)
+	err = json.NewEncoder(w).Encode(&store)
 	if err != nil {
 		log.Printf("Error writing response")
 		log.Print(err.Error())
 	}
+}
+
+func (this StoreController) DeleteStoreController(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	id := mux.Vars(r)["id"]
+
+	err := this.Dao.StoreDAO.Delete(r.Context(), id)
+	if err != nil {
+		log.Printf("Error deleting store %s", id)
+		log.Print(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
