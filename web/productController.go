@@ -13,40 +13,40 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-type ProductHandler struct {
+type ProductController struct {
 	Dao *dao.Bundle
 }
 
-func NewProductController(dao *dao.Bundle) *ProductHandler {
-	return &ProductHandler{
+func NewProductController(dao *dao.Bundle) *ProductController {
+	return &ProductController{
 		Dao: dao,
 	}
 }
 
-func (ph ProductHandler) SetupRouter(router *mux.Router) {
+func (ph ProductController) SetupRouter(router *mux.Router) {
 	router.
 		Methods(http.MethodGet).
 		Path("/{id}").
 		Name("Get a single product").
-		HandlerFunc(ph.GetProductHandler)
+		HandlerFunc(ph.GetProductController)
 	router.
 		Methods(http.MethodPut).
 		Path("/").
 		Name("Create a single product").
-		HandlerFunc(ph.CreateProductHandler)
+		HandlerFunc(ph.CreateProductController)
 	router.
 		Methods(http.MethodDelete).
 		Path("/{id}").
 		Name("Delete a single product").
-		HandlerFunc(ph.DeleteProductHandler)
+		HandlerFunc(ph.DeleteProductController)
 	router.
 		Methods(http.MethodPatch).
 		Path("/{id}").
 		Name("Update a single product").
-		HandlerFunc(ph.UpdateProductHandler)
+		HandlerFunc(ph.UpdateProductController)
 }
 
-func (ph ProductHandler) CreateProductHandler(w http.ResponseWriter, r *http.Request) {
+func (ph ProductController) CreateProductController(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	product := model.Product{}
@@ -77,7 +77,7 @@ func (ph ProductHandler) CreateProductHandler(w http.ResponseWriter, r *http.Req
 	}
 }
 
-func (ph ProductHandler) GetProductHandler(w http.ResponseWriter, r *http.Request) {
+func (ph ProductController) GetProductController(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	id := mux.Vars(r)["id"]
@@ -106,7 +106,7 @@ func (ph ProductHandler) GetProductHandler(w http.ResponseWriter, r *http.Reques
 
 }
 
-func (ph ProductHandler) DeleteProductHandler(w http.ResponseWriter, r *http.Request) {
+func (ph ProductController) DeleteProductController(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	id := mux.Vars(r)["id"]
@@ -122,7 +122,7 @@ func (ph ProductHandler) DeleteProductHandler(w http.ResponseWriter, r *http.Req
 	w.WriteHeader(http.StatusOK)
 }
 
-func (ph ProductHandler) UpdateProductHandler(w http.ResponseWriter, r *http.Request) {
+func (ph ProductController) UpdateProductController(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	id := mux.Vars(r)["id"]
