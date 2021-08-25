@@ -2,6 +2,7 @@ package model
 
 import (
 	"github.com/google/uuid"
+	"github.com/xyproto/randomstring"
 )
 
 type Store struct {
@@ -32,4 +33,12 @@ func (s Store) ValueEquals(store *Store) bool {
 	return s.Name == store.Name &&
 		s.City == store.City &&
 		s.Zipcode == store.Zipcode
+}
+
+func GenerateRandomStore() *Store {
+	return NewStore(
+		randomstring.HumanFriendlyString(10),
+		randomstring.HumanFriendlyString(10),
+		randomstring.HumanFriendlyString(5),
+	)
 }
