@@ -21,6 +21,21 @@ func NewPriceDAOFirestore() *PriceDAOFirestore {
 	return &PriceDAOFirestore{}
 }
 
+func (this PriceDAOFirestore) Load(ctx context.Context, id string) (price *model.Price, err error) {
+	doc, err := firestoreClient.Collection(firestorePriceCollection).Doc(id).Get(ctx)
+	if err != nil {
+		return
+	}
+	priceEntity := firestorePrice{}
+	err = doc.DataTo(&priceEntity)
+	if err != nil {
+		return
+	}
+	price = this.toModel(&priceEntity)
+	price.ID = id
+	return
+}
+
 func (this PriceDAOFirestore) Upsert(ctx context.Context, price *model.Price) (err error) {
 	pf := this.fromModel(price)
 	_, err = firestoreClient.

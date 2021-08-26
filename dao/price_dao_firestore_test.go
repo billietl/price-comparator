@@ -20,7 +20,7 @@ func generatePriceTestData(t *testing.T) (price *model.Price) {
 
 	ctx := context.Background()
 	dao := NewPriceDAOFirestore()
-	doc, _, err := firestoreClient.Collection(firestoreProductCollection).Add(ctx, dao.fromModel(price))
+	doc, _, err := firestoreClient.Collection(firestorePriceCollection).Add(ctx, dao.fromModel(price))
 	if err != nil {
 		t.Log(err.Error())
 		t.Fail()
@@ -58,4 +58,26 @@ func TestPriceDAOFirestoreCreate(t *testing.T) {
 	assert.Equal(t, createdPrice.Date, docDate)
 	assert.Equal(t, createdPrice.Product_ID, docData["product_id"])
 	assert.Equal(t, createdPrice.Store_ID, docData["store_id"])
+}
+
+func TestPrriceDAOFirestoreRead(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	// Setup test data
+	testPrice := generatePriceTestData(t)
+	defer firestoreClient.Collection(firestorePriceCollection).Doc(testPrice.ID).Delete(ctx)
+
+	priceDAO := NewPriceDAOFirestore()
+
+	loadedPrice, err := priceDAO.Load(ctx, testPrice.ID)
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+	assert.Equal(t, testPrice.Amount, loadedPrice.Amount, "Didn't find the right price amount")
+	assert.Equal(t, testPrice.Date, loadedPrice.Date, "Didn't find the right price date")
+	assert.Equal(t, testPrice.Product_ID, loadedPrice.Product_ID, "Didn't find the right product price")
+	assert.Equal(t, testPrice.Store_ID, loadedPrice.Store_ID, "Didn't find the right store price")
+	assert.NotEqual(t, "", loadedPrice.ID, "Loaded store didn't have ID")
 }
