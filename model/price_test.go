@@ -13,7 +13,7 @@ func TestNewPriceFields(t *testing.T) {
 	t.Parallel()
 
 	result_amount := rand.Float64()
-	result_date := randate()
+	result_date := Randate()
 	result_product := GenerateRandomProduct()
 	result_store := GenerateRandomStore()
 
@@ -68,7 +68,7 @@ func TestPriceEquals(t *testing.T) {
 	price1 := &Price{
 		ID:         uuid.New().String(),
 		Amount:     rand.Float64(),
-		Date:       randate(),
+		Date:       Randate(),
 		Product_ID: GenerateRandomProduct().ID,
 		Store_ID:   GenerateRandomStore().ID,
 	}
@@ -82,7 +82,7 @@ func TestPriceEquals(t *testing.T) {
 	price3 := &Price{
 		ID:         price1.ID,
 		Amount:     rand.Float64(),
-		Date:       randate(),
+		Date:       Randate(),
 		Product_ID: GenerateRandomProduct().ID,
 		Store_ID:   GenerateRandomStore().ID,
 	}

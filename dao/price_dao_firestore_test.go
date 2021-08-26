@@ -2,10 +2,12 @@ package dao
 
 import (
 	"context"
+	"math/rand"
 	"price-comparator/model"
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/xyproto/randomstring"
 )
@@ -80,4 +82,39 @@ func TestPrriceDAOFirestoreRead(t *testing.T) {
 	assert.Equal(t, testPrice.Product_ID, loadedPrice.Product_ID, "Didn't find the right product price")
 	assert.Equal(t, testPrice.Store_ID, loadedPrice.Store_ID, "Didn't find the right store price")
 	assert.NotEqual(t, "", loadedPrice.ID, "Loaded store didn't have ID")
+}
+
+func TestPriceDAOFirestoreUpdate(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	priceDAO := NewPriceDAOFirestore()
+
+	// Setup test data
+	testPrice := generatePriceTestData(t)
+	defer firestoreClient.Collection(firestorePriceCollection).Doc(testPrice.ID).Delete(ctx)
+
+	price, err := priceDAO.Load(ctx, testPrice.ID)
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+
+	price.Amount = rand.Float64()
+	price.Date = model.Randate()
+	price.Product_ID = uuid.New().String()
+	price.Store_ID = uuid.New().String()
+	priceDAO.Upsert(ctx, price)
+
+	// Reload data
+	doc, err := firestoreClient.Collection(firestorePriceCollection).Doc(testPrice.ID).Get(ctx)
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+	docData := doc.Data()
+	assert.NotEqual(t, testPrice.Amount, docData["amount"])
+	assert.NotEqual(t, testPrice.Date, docData["date"])
+	assert.NotEqual(t, testPrice.Product_ID, docData["product_id"])
+	assert.NotEqual(t, testPrice.Store_ID, docData["store_id"])
 }

@@ -49,11 +49,11 @@ func GenerateRandomPrice() *Price {
 		GenerateRandomProduct(),
 		GenerateRandomStore(),
 		rand.Float64(),
-		randate(),
+		Randate(),
 	)
 }
 
-func randate() time.Time {
+func Randate() time.Time {
 	min := time.Date(1970, 1, 0, 0, 0, 0, 0, time.UTC).Unix()
 	max := time.Date(2070, 1, 0, 0, 0, 0, 0, time.UTC).Unix()
 	delta := max - min
