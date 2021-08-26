@@ -13,6 +13,7 @@ var (
 type Bundle struct {
 	ProductDAO ProductDAO
 	StoreDAO   StoreDAO
+	PriceDAO   PriceDAO
 	Shutdown   func()
 }
 
@@ -23,6 +24,7 @@ func GetBundle(ctx context.Context, daoType string) (bundle *Bundle, err error) 
 		initFirestore(ctx)
 		bundle.ProductDAO = NewProductDAOFirestore()
 		bundle.StoreDAO = NewStoreDAOFirestore()
+		// bundle.PriceDAO = NewPriceDAOFirestore()
 		bundle.Shutdown = shutDownFirestoreClient
 		return
 	}

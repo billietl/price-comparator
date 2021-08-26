@@ -13,31 +13,27 @@ import (
 
 func init() {
 	randomstring.Seed()
+	initFirestore(context.Background())
 }
 
-func generateStoreTestData(t *testing.T) (id string, result map[string]string) {
-	result = map[string]string{}
-	result["name"] = randomstring.HumanFriendlyString(10)
-	result["city"] = randomstring.HumanFriendlyString(10)
-	result["zipcode"] = randomstring.HumanFriendlyString(5)
+func generateStoreTestData(t *testing.T) (store *model.Store) {
+	store = model.GenerateRandomStore()
+	dao := NewStoreDAOFirestore()
 
 	ctx := context.Background()
-	doc, _, err := firestoreClient.Collection(firestoreStoreCollection).Add(ctx, result)
+	doc, _, err := firestoreClient.Collection(firestoreStoreCollection).Add(ctx, dao.fromModel(store))
 	if err != nil {
 		t.Log(err.Error())
 		t.Fail()
 	}
-	id = doc.ID
+	store.ID = doc.ID
 
 	return
 }
 
-func cleanupStoreTestData(t *testing.T, id string) {
-	ctx := context.Background()
-	firestoreClient.Collection(firestoreStoreCollection).Doc(id).Delete(ctx)
-}
-
 func TestStoreDAOFirestoreCreate(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
 	storeDAO := NewStoreDAOFirestore()
 
@@ -53,6 +49,7 @@ func TestStoreDAOFirestoreCreate(t *testing.T) {
 		t.Log(err.Error())
 		t.Fail()
 	}
+	defer firestoreClient.Collection(firestoreStoreCollection).Doc(createdStore.ID).Delete(ctx)
 
 	// Reload data
 	doc, err := firestoreClient.Collection(firestoreStoreCollection).Doc(createdStore.ID).Get(ctx)
@@ -64,40 +61,40 @@ func TestStoreDAOFirestoreCreate(t *testing.T) {
 	assert.Equal(t, createdStore.Name, docData["name"])
 	assert.Equal(t, createdStore.City, docData["city"])
 	assert.Equal(t, createdStore.Zipcode, docData["zipcode"])
-
-	// Cleanup test data
-	cleanupStoreTestData(t, createdStore.ID)
 }
 
 func TestStoreDAOFirestoreRead(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
 	// Setup test data
-	id, testData := generateStoreTestData(t)
+	testStore := generateStoreTestData(t)
+	defer firestoreClient.Collection(firestoreStoreCollection).Doc(testStore.ID).Delete(ctx)
 
 	storeDAO := NewStoreDAOFirestore()
 
-	loadedStore, err := storeDAO.Load(ctx, id)
+	loadedStore, err := storeDAO.Load(ctx, testStore.ID)
 	if err != nil {
 		t.Log(err.Error())
 		t.Fail()
 	}
-	assert.Equal(t, testData["name"], loadedStore.Name, "Didn't find the right store name")
-	assert.Equal(t, testData["city"], loadedStore.City, "Didn't find the right store city")
-	assert.Equal(t, testData["zipcode"], loadedStore.Zipcode, "Didn't find the right store zipcode")
+	assert.Equal(t, testStore.Name, loadedStore.Name, "Didn't find the right store name")
+	assert.Equal(t, testStore.City, loadedStore.City, "Didn't find the right store city")
+	assert.Equal(t, testStore.Zipcode, loadedStore.Zipcode, "Didn't find the right store zipcode")
 	assert.NotEqual(t, "", loadedStore.ID, "Loaded store didn't have ID")
-
-	// Cleanup test data
-	cleanupStoreTestData(t, id)
 }
 
 func TestStoreDAOFirestoreUpdate(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
 	storeDAO := NewStoreDAOFirestore()
 
 	// Setup test data
-	id, testData := generateStoreTestData(t)
+	testStore := generateStoreTestData(t)
+	defer firestoreClient.Collection(firestoreStoreCollection).Doc(testStore.ID).Delete(ctx)
 
-	store, err := storeDAO.Load(ctx, id)
+	store, err := storeDAO.Load(ctx, testStore.ID)
 	if err != nil {
 		t.Log(err.Error())
 		t.Fail()
@@ -108,34 +105,33 @@ func TestStoreDAOFirestoreUpdate(t *testing.T) {
 	storeDAO.Upsert(ctx, store)
 
 	// Reload data
-	doc, err := firestoreClient.Collection(firestoreStoreCollection).Doc(id).Get(ctx)
+	doc, err := firestoreClient.Collection(firestoreStoreCollection).Doc(testStore.ID).Get(ctx)
 	if err != nil {
 		t.Log(err.Error())
 		t.Fail()
 	}
 	docData := doc.Data()
-	assert.NotEqual(t, docData["name"], testData["name"])
-	assert.NotEqual(t, docData["city"], testData["city"])
-	assert.NotEqual(t, docData["zipcode"], testData["zipcode"])
-
-	// Cleanup test data
-	cleanupStoreTestData(t, id)
+	assert.NotEqual(t, testStore.Name, docData["name"])
+	assert.NotEqual(t, testStore.City, docData["city"])
+	assert.NotEqual(t, testStore.Zipcode, docData["zipcode"])
 }
 
 func TestStoreDAOFirestoreDelete(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
 	storeDAO := NewStoreDAOFirestore()
 
 	// Setup test data
-	id, _ := generateStoreTestData(t)
+	testStore := generateStoreTestData(t)
 
-	err := storeDAO.Delete(ctx, id)
+	err := storeDAO.Delete(ctx, testStore.ID)
 	if err != nil {
 		t.Log(err.Error())
 		t.Fail()
 	}
 
-	_, err = firestoreClient.Collection(firestoreStoreCollection).Doc(id).Get(ctx)
+	_, err = firestoreClient.Collection(firestoreStoreCollection).Doc(testStore.ID).Get(ctx)
 	if grpc.Code(err) != codes.NotFound {
 		t.Log(err.Error())
 		t.Fail()
@@ -143,14 +139,17 @@ func TestStoreDAOFirestoreDelete(t *testing.T) {
 }
 
 func TestStoreDAOFirestoreSearch(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
 	storeDAO := NewStoreDAOFirestore()
 
 	// Setup test data
-	id, testData := generateStoreTestData(t)
+	testStore := generateStoreTestData(t)
+	defer firestoreClient.Collection(firestoreStoreCollection).Doc(testStore.ID).Delete(ctx)
 
 	searchedByNameStore := model.Store{
-		Name: testData["name"],
+		Name: testStore.Name,
 	}
 	storeList, err := storeDAO.Search(ctx, &searchedByNameStore)
 	if err != nil {
@@ -158,10 +157,7 @@ func TestStoreDAOFirestoreSearch(t *testing.T) {
 		t.Fail()
 	}
 	assert.Equal(t, 1, len(*storeList), "Didn't find the right amount of stores")
-	assert.Equal(t, testData["name"], (*storeList)[0].Name, "Didn't find the right store name")
-	assert.Equal(t, testData["city"], (*storeList)[0].City, "Didn't find the right store city")
-	assert.Equal(t, testData["zipcode"], (*storeList)[0].Zipcode, "Didn't find the right store zipcode")
-
-	// Cleanup test data
-	cleanupStoreTestData(t, id)
+	assert.Equal(t, testStore.Name, (*storeList)[0].Name, "Didn't find the right store name")
+	assert.Equal(t, testStore.City, (*storeList)[0].City, "Didn't find the right store city")
+	assert.Equal(t, testStore.Zipcode, (*storeList)[0].Zipcode, "Didn't find the right store zipcode")
 }

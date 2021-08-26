@@ -2,7 +2,6 @@ package dao
 
 import (
 	"context"
-	"math/rand"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -18,29 +17,24 @@ func init() {
 	initFirestore(context.Background())
 }
 
-func generateProductTestData(t *testing.T) (id string, result map[string]interface{}) {
-	result = map[string]interface{}{}
-	result["name"] = randomstring.HumanFriendlyString(10)
-	result["bio"] = rand.Int()%2 == 1
-	result["vrac"] = rand.Int()%2 == 1
+func generateProductTestData(t *testing.T) (product *model.Product) {
+	product = model.GenerateRandomProduct()
+	dao := NewProductDAOFirestore()
 
 	ctx := context.Background()
-	doc, _, err := firestoreClient.Collection(firestoreProductCollection).Add(ctx, result)
+	doc, _, err := firestoreClient.Collection(firestoreProductCollection).Add(ctx, dao.fromModel(product))
 	if err != nil {
 		t.Log(err.Error())
 		t.Fail()
 	}
-	id = doc.ID
+	product.ID = doc.ID
 
 	return
 }
 
-func cleanupProductTestData(t *testing.T, id string) {
-	ctx := context.Background()
-	firestoreClient.Collection(firestoreProductCollection).Doc(id).Delete(ctx)
-}
-
 func TestProductDAOFirestoreCreate(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
 	productDAO := NewProductDAOFirestore()
 
@@ -52,6 +46,7 @@ func TestProductDAOFirestoreCreate(t *testing.T) {
 		t.Log(err.Error())
 		t.Fail()
 	}
+	defer firestoreClient.Collection(firestoreProductCollection).Doc(createdProduct.ID).Delete(ctx)
 
 	// Reload product
 	doc, err := firestoreClient.Collection(firestoreProductCollection).Doc(createdProduct.ID).Get(ctx)
@@ -63,40 +58,40 @@ func TestProductDAOFirestoreCreate(t *testing.T) {
 	assert.Equal(t, createdProduct.Name, docData["name"])
 	assert.Equal(t, createdProduct.Bio, docData["bio"])
 	assert.Equal(t, createdProduct.Vrac, docData["vrac"])
-
-	// Cleanup test data
-	cleanupProductTestData(t, createdProduct.ID)
 }
 
 func TestProductDAOFirestoreRead(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
 	// Setup test data
-	id, testData := generateProductTestData(t)
+	testProduct := generateProductTestData(t)
+	defer firestoreClient.Collection(firestoreProductCollection).Doc(testProduct.ID).Delete(ctx)
 
 	productDAO := NewProductDAOFirestore()
 
-	loadedProduct, err := productDAO.Load(ctx, id)
+	loadedProduct, err := productDAO.Load(ctx, testProduct.ID)
 	if err != nil {
 		t.Log(err.Error())
 		t.Fail()
 	}
-	assert.Equal(t, testData["name"], loadedProduct.Name, "Didn't find the right product name")
-	assert.Equal(t, testData["bio"], loadedProduct.Bio, "Didn't find the right bio label")
-	assert.Equal(t, testData["vrac"], loadedProduct.Vrac, "Didn't find the right vrac label")
+	assert.Equal(t, testProduct.Name, loadedProduct.Name, "Didn't find the right product name")
+	assert.Equal(t, testProduct.Bio, loadedProduct.Bio, "Didn't find the right bio label")
+	assert.Equal(t, testProduct.Vrac, loadedProduct.Vrac, "Didn't find the right vrac label")
 	assert.NotEqual(t, "", loadedProduct.ID, "Loaded store didn't have ID")
-
-	// Cleanup test data
-	cleanupStoreTestData(t, id)
 }
 
 func TestProductDAOFirestoreUpdate(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
 	productDAO := NewProductDAOFirestore()
 
 	// Setup test data
-	id, testData := generateProductTestData(t)
+	testProduct := generateProductTestData(t)
+	defer firestoreClient.Collection(firestoreProductCollection).Doc(testProduct.ID).Delete(ctx)
 
-	product, err := productDAO.Load(ctx, id)
+	product, err := productDAO.Load(ctx, testProduct.ID)
 	if err != nil {
 		t.Log(err.Error())
 		t.Fail()
@@ -107,35 +102,34 @@ func TestProductDAOFirestoreUpdate(t *testing.T) {
 	productDAO.Upsert(ctx, product)
 
 	// Reload data
-	doc, err := firestoreClient.Collection(firestoreProductCollection).Doc(id).Get(ctx)
+	doc, err := firestoreClient.Collection(firestoreProductCollection).Doc(testProduct.ID).Get(ctx)
 	if err != nil {
 		t.Log(err.Error())
 		t.Fail()
 	}
 	docData := doc.Data()
-	assert.NotEqual(t, docData["name"], testData["name"])
-	assert.NotEqual(t, docData["bio"], testData["bio"])
-	assert.NotEqual(t, docData["vrac"], testData["vrac"])
-
-	// Cleanup test data
-	cleanupProductTestData(t, id)
+	assert.NotEqual(t, docData["name"], testProduct.Name)
+	assert.NotEqual(t, docData["bio"], testProduct.Bio)
+	assert.NotEqual(t, docData["vrac"], testProduct.Vrac)
 }
 
 func TestProductDAOFirestoreDelete(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
 	productDAO := NewProductDAOFirestore()
 
 	// Setup test data
-	id, _ := generateProductTestData(t)
+	testProduct := generateProductTestData(t)
 
 	// Delete data
-	err := productDAO.Delete(ctx, id)
+	err := productDAO.Delete(ctx, testProduct.ID)
 	if err != nil {
 		t.Log(err.Error())
 		t.Fail()
 	}
 
-	_, err = firestoreClient.Collection(firestoreStoreCollection).Doc(id).Get(ctx)
+	_, err = firestoreClient.Collection(firestoreStoreCollection).Doc(testProduct.ID).Get(ctx)
 	if grpc.Code(err) != codes.NotFound {
 		t.Log(err.Error())
 		t.Fail()
@@ -143,15 +137,17 @@ func TestProductDAOFirestoreDelete(t *testing.T) {
 }
 
 func TestProductDAOFirestoreSearch(t *testing.T) {
+	t.Parallel()
 
 	ctx := context.Background()
 	productDAO := NewProductDAOFirestore()
 
 	// Setup test data
-	id, testData := generateProductTestData(t)
+	testProduct := generateProductTestData(t)
+	defer firestoreClient.Collection(firestoreProductCollection).Doc(testProduct.ID).Delete(ctx)
 
 	searchedByNameProduct := model.Product{
-		Name: testData["name"].(string),
+		Name: testProduct.Name,
 	}
 	productList, err := productDAO.Search(ctx, &searchedByNameProduct, false, false)
 	if err != nil {
@@ -162,10 +158,7 @@ func TestProductDAOFirestoreSearch(t *testing.T) {
 		t.Fail()
 		return
 	}
-	assert.Equal(t, testData["name"], (*productList)[0].Name, "Didn't find the right product name")
-	assert.Equal(t, testData["bio"], (*productList)[0].Bio, "Didn't find the right product bio label")
-	assert.Equal(t, testData["vrac"], (*productList)[0].Vrac, "Didn't find the right product vrac label")
-
-	// Cleanup test data
-	cleanupStoreTestData(t, id)
+	assert.Equal(t, testProduct.Name, (*productList)[0].Name, "Didn't find the right product name")
+	assert.Equal(t, testProduct.Bio, (*productList)[0].Bio, "Didn't find the right product bio label")
+	assert.Equal(t, testProduct.Vrac, (*productList)[0].Vrac, "Didn't find the right product vrac label")
 }

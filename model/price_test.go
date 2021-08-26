@@ -23,8 +23,8 @@ func TestNewPriceFields(t *testing.T) {
 	assert.Equal(t, result_amount, price.Amount)
 	assert.Equal(t, result_date, price.Date)
 
-	assert.Equal(t, result_product.ID, price.Product.ID)
-	assert.Equal(t, result_store.ID, price.Store.ID)
+	assert.Equal(t, result_product.ID, price.Product_ID)
+	assert.Equal(t, result_store.ID, price.Store_ID)
 }
 
 func TestNewPriceNowDate(t *testing.T) {
@@ -66,25 +66,25 @@ func TestPriceEquals(t *testing.T) {
 	t.Parallel()
 
 	price1 := &Price{
-		ID:      uuid.New().String(),
-		Amount:  rand.Float64(),
-		Date:    randate(),
-		Product: GenerateRandomProduct(),
-		Store:   GenerateRandomStore(),
+		ID:         uuid.New().String(),
+		Amount:     rand.Float64(),
+		Date:       randate(),
+		Product_ID: GenerateRandomProduct().ID,
+		Store_ID:   GenerateRandomStore().ID,
 	}
 	price2 := &Price{
-		ID:      uuid.New().String(),
-		Amount:  price1.Amount,
-		Date:    price1.Date,
-		Product: price1.Product,
-		Store:   price1.Store,
+		ID:         uuid.New().String(),
+		Amount:     price1.Amount,
+		Date:       price1.Date,
+		Product_ID: price1.Product_ID,
+		Store_ID:   price1.Store_ID,
 	}
 	price3 := &Price{
-		ID:      price1.ID,
-		Amount:  rand.Float64(),
-		Date:    randate(),
-		Product: GenerateRandomProduct(),
-		Store:   GenerateRandomStore(),
+		ID:         price1.ID,
+		Amount:     rand.Float64(),
+		Date:       randate(),
+		Product_ID: GenerateRandomProduct().ID,
+		Store_ID:   GenerateRandomStore().ID,
 	}
 
 	assert.Equal(t, false, price1.Equals(price2))
