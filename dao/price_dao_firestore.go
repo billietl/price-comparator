@@ -54,7 +54,7 @@ func (this PriceDAOFirestore) toModel(p *firestorePrice) *model.Price {
 	date, _ := time.Parse(time.UnixDate, p.Date)
 	return &model.Price{
 		Amount:     p.Amount,
-		Date:       date,
+		Date:       &date,
 		Product_ID: p.Product_ID,
 		Store_ID:   p.Store_ID,
 	}
@@ -67,4 +67,35 @@ func (this PriceDAOFirestore) fromModel(price *model.Price) *firestorePrice {
 		Product_ID: price.Product_ID,
 		Store_ID:   price.Store_ID,
 	}
+}
+
+func (this PriceDAOFirestore) Search(ctx context.Context, price *model.Price) (*[]model.Price, error) {
+	// Build query
+	query := firestoreClient.Collection(firestorePriceCollection).Select()
+	if price.Amount != 0 {
+		query = query.Where("amount", "==", price.Amount)
+	}
+	if price.Date != nil {
+		query = query.Where("date", "==", price.Date)
+	}
+	if price.Store_ID != "" {
+		query = query.Where("store_id", "==", price.Store_ID)
+	}
+	if price.Product_ID != "" {
+		query = query.Where("product_id", "==", price.Product_ID)
+	}
+	// Retrieve documents
+	docs, err := query.Documents(ctx).GetAll()
+	if err != nil {
+		return nil, err
+	}
+	result := make([]model.Price, 0, len(docs))
+	for _, doc := range docs {
+		newPrice, err := this.Load(ctx, (*doc).Ref.ID)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, *newPrice)
+	}
+	return &result, nil
 }

@@ -50,7 +50,7 @@ func TestPriceDAOFirestoreCreate(t *testing.T) {
 	}
 	defer firestoreClient.Collection(firestorePriceCollection).Doc(createdPrice.ID).Delete(ctx)
 
-	// Reload product
+	// Reload price
 	doc, err := firestoreClient.Collection(firestorePriceCollection).Doc(createdPrice.ID).Get(ctx)
 	if err != nil {
 		t.Log(err.Error())
@@ -59,7 +59,7 @@ func TestPriceDAOFirestoreCreate(t *testing.T) {
 	docData := doc.Data()
 	docDate, _ := time.Parse(time.UnixDate, docData["date"].(string))
 	assert.Equal(t, createdPrice.Amount, docData["amount"])
-	assert.Equal(t, createdPrice.Date, docDate)
+	assert.Equal(t, true, createdPrice.Date.Equal(docDate))
 	assert.Equal(t, createdPrice.Product_ID, docData["product_id"])
 	assert.Equal(t, createdPrice.Store_ID, docData["store_id"])
 }
@@ -102,8 +102,9 @@ func TestPriceDAOFirestoreUpdate(t *testing.T) {
 		t.Fail()
 	}
 
+	newDate := model.Randate()
 	price.Amount = rand.Float64()
-	price.Date = model.Randate()
+	price.Date = &newDate
 	price.Product_ID = uuid.New().String()
 	price.Store_ID = uuid.New().String()
 	priceDAO.Upsert(ctx, price)
@@ -142,4 +143,33 @@ func TestPriceDAOFirestoreDelete(t *testing.T) {
 		t.Log(err.Error())
 		t.Fail()
 	}
+}
+
+func TestPriceDAOFirestoreSearch(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	PriceDAO := NewPriceDAOFirestore()
+
+	// Setup test data
+	testPrice := generatePriceTestData(t)
+	defer firestoreClient.Collection(firestorePriceCollection).Doc(testPrice.ID).Delete(ctx)
+
+	searchedByProductPrice := model.Price{
+		Product_ID: testPrice.Product_ID,
+	}
+	PriceList, err := PriceDAO.Search(ctx, &searchedByProductPrice)
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+	if !assert.Equal(t, 1, len(*PriceList), "Didn't find the right amount of Prices") {
+		t.Fail()
+		return
+	}
+	assert.Equal(t, testPrice.Amount, (*PriceList)[0].Amount, "Didn't find the right price amount")
+	assert.Equal(t, true, testPrice.Date.Equal(*((*PriceList)[0].Date)))
+	// assert.Equal(t, time.Parse(time.UniwDate, *testPrice.Date), time.Parse(time.UnixDate, *((*PriceList)[0].Date)), "Didn't find the right price date")
+	assert.Equal(t, testPrice.Product_ID, (*PriceList)[0].Product_ID, "Didn't find the right product price")
+	assert.Equal(t, testPrice.Store_ID, (*PriceList)[0].Store_ID, "Didn't find the right store price")
 }
