@@ -10,6 +10,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/xyproto/randomstring"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 )
 
 func init() {
@@ -117,4 +119,27 @@ func TestPriceDAOFirestoreUpdate(t *testing.T) {
 	assert.NotEqual(t, testPrice.Date, docData["date"])
 	assert.NotEqual(t, testPrice.Product_ID, docData["product_id"])
 	assert.NotEqual(t, testPrice.Store_ID, docData["store_id"])
+}
+
+func TestPriceDAOFirestoreDelete(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	priceDAO := NewPriceDAOFirestore()
+
+	// Setup test data
+	testPrice := generatePriceTestData(t)
+
+	// Delete data
+	err := priceDAO.Delete(ctx, testPrice.ID)
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+
+	_, err = firestoreClient.Collection(firestoreStoreCollection).Doc(testPrice.ID).Get(ctx)
+	if grpc.Code(err) != codes.NotFound {
+		t.Log(err.Error())
+		t.Fail()
+	}
 }

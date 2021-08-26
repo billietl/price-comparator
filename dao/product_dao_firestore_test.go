@@ -129,7 +129,7 @@ func TestProductDAOFirestoreDelete(t *testing.T) {
 		t.Fail()
 	}
 
-	_, err = firestoreClient.Collection(firestoreStoreCollection).Doc(testProduct.ID).Get(ctx)
+	_, err = firestoreClient.Collection(firestoreProductCollection).Doc(testProduct.ID).Get(ctx)
 	if grpc.Code(err) != codes.NotFound {
 		t.Log(err.Error())
 		t.Fail()

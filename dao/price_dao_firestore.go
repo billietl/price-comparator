@@ -45,6 +45,11 @@ func (this PriceDAOFirestore) Upsert(ctx context.Context, price *model.Price) (e
 	return
 }
 
+func (this PriceDAOFirestore) Delete(ctx context.Context, id string) (err error) {
+	_, err = firestoreClient.Collection(firestorePriceCollection).Doc(id).Delete(ctx)
+	return
+}
+
 func (this PriceDAOFirestore) toModel(p *firestorePrice) *model.Price {
 	date, _ := time.Parse(time.UnixDate, p.Date)
 	return &model.Price{
