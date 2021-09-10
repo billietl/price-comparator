@@ -52,9 +52,10 @@ func (this PriceDAOFirestore) Delete(ctx context.Context, id string) (err error)
 
 func (this PriceDAOFirestore) toModel(p *firestorePrice) *model.Price {
 	date, _ := time.Parse(time.UnixDate, p.Date)
+	localDate := date.Local()
 	return &model.Price{
 		Amount:     p.Amount,
-		Date:       &date,
+		Date:       &localDate,
 		Product_ID: p.Product_ID,
 		Store_ID:   p.Store_ID,
 	}
@@ -63,7 +64,7 @@ func (this PriceDAOFirestore) toModel(p *firestorePrice) *model.Price {
 func (this PriceDAOFirestore) fromModel(price *model.Price) *firestorePrice {
 	return &firestorePrice{
 		Amount:     price.Amount,
-		Date:       price.Date.Format(time.UnixDate),
+		Date:       price.Date.UTC().Format(time.UnixDate),
 		Product_ID: price.Product_ID,
 		Store_ID:   price.Store_ID,
 	}
