@@ -64,7 +64,7 @@ func TestPriceDAOFirestoreCreate(t *testing.T) {
 	assert.Equal(t, createdPrice.Store_ID, docData["store_id"])
 }
 
-func TestPrriceDAOFirestoreRead(t *testing.T) {
+func TestPriceDAOFirestoreRead(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
