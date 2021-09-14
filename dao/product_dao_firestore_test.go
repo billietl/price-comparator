@@ -10,6 +10,7 @@ import (
 	"google.golang.org/grpc/codes"
 
 	"price-comparator/model"
+	"price-comparator/testUtils"
 )
 
 func init() {
@@ -18,7 +19,7 @@ func init() {
 }
 
 func generateProductTestData(t *testing.T) (product *model.Product) {
-	product = model.GenerateRandomProduct()
+	product = testUtils.GenerateRandomProduct()
 	dao := NewProductDAOFirestore()
 
 	ctx := context.Background()
@@ -39,7 +40,7 @@ func TestProductDAOFirestoreCreate(t *testing.T) {
 	productDAO := NewProductDAOFirestore()
 
 	// Upsert new product
-	createdProduct := model.GenerateRandomProduct()
+	createdProduct := testUtils.GenerateRandomProduct()
 
 	err := productDAO.Upsert(ctx, createdProduct)
 	if err != nil {

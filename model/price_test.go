@@ -30,12 +30,14 @@ func TestNewPriceFields(t *testing.T) {
 }
 
 func TestNewPriceNowDate(t *testing.T) {
-	// TODO: rewrite this test
 	t.Parallel()
 
-	price1 := testUtils.GenerateRandomPrice()
+	product := testUtils.GenerateRandomProduct()
+	store := testUtils.GenerateRandomStore()
+
+	price1 := model.NewPriceNow(product, store, rand.Float64())
 	time.Sleep(1)
-	price2 := testUtils.GenerateRandomPrice()
+	price2 := model.NewPriceNow(product, store, rand.Float64())
 
 	assert.NotEqual(t, *price1.Date, *price2.Date)
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"math/rand"
 	"price-comparator/model"
+	"price-comparator/testUtils"
 	"testing"
 	"time"
 
@@ -20,7 +21,7 @@ func init() {
 }
 
 func generatePriceTestData(t *testing.T) (price *model.Price) {
-	price = model.GenerateRandomPrice()
+	price = testUtils.GenerateRandomPrice()
 
 	ctx := context.Background()
 	dao := NewPriceDAOFirestore()
@@ -41,7 +42,7 @@ func TestPriceDAOFirestoreCreate(t *testing.T) {
 	priceDAO := NewPriceDAOFirestore()
 
 	// Upsert new price
-	createdPrice := model.GenerateRandomPrice()
+	createdPrice := testUtils.GenerateRandomPrice()
 
 	err := priceDAO.Upsert(ctx, createdPrice)
 	if err != nil {
@@ -102,7 +103,7 @@ func TestPriceDAOFirestoreUpdate(t *testing.T) {
 		t.Fail()
 	}
 
-	newDate := model.Randate()
+	newDate := testUtils.Randate()
 	price.Amount = rand.Float64()
 	price.Date = &newDate
 	price.Product_ID = uuid.New().String()
