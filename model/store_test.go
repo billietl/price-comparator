@@ -1,6 +1,7 @@
-package model
+package model_test
 
 import (
+	"price-comparator/model"
 	"testing"
 
 	"github.com/google/uuid"
@@ -17,7 +18,7 @@ func TestNewStoreFields(t *testing.T) {
 	result["city"] = randomstring.HumanFriendlyString(10)
 	result["zipcode"] = randomstring.HumanFriendlyString(5)
 
-	s := NewStore(result["name"], result["city"], result["zipcode"])
+	s := model.NewStore(result["name"], result["city"], result["zipcode"])
 
 	assert.Equal(t, result["name"], s.Name)
 	assert.Equal(t, result["city"], s.City)
@@ -27,8 +28,8 @@ func TestNewStoreFields(t *testing.T) {
 func TestNewStoreUUID(t *testing.T) {
 	t.Parallel()
 
-	s1 := NewStore("", "", "")
-	s2 := NewStore("", "", "")
+	s1 := model.NewStore("", "", "")
+	s2 := model.NewStore("", "", "")
 
 	assert.NotEqual(t, s1.ID, s2.ID)
 }
@@ -36,7 +37,7 @@ func TestNewStoreUUID(t *testing.T) {
 func TestStoreGenerateID(t *testing.T) {
 	t.Parallel()
 
-	Store := NewStore("", "", "")
+	Store := model.NewStore("", "", "")
 	id1 := Store.ID
 	Store.GenerateID()
 	id2 := Store.ID
@@ -47,19 +48,19 @@ func TestStoreGenerateID(t *testing.T) {
 func TestStoreEquals(t *testing.T) {
 	t.Parallel()
 
-	store1 := &Store{
+	store1 := &model.Store{
 		ID:      uuid.New().String(),
 		Name:    randomstring.HumanFriendlyString(10),
 		City:    randomstring.HumanFriendlyString(10),
 		Zipcode: randomstring.HumanFriendlyString(5),
 	}
-	store2 := &Store{
+	store2 := &model.Store{
 		ID:      uuid.New().String(),
 		Name:    store1.Name,
 		City:    store1.City,
 		Zipcode: store1.Zipcode,
 	}
-	store3 := &Store{
+	store3 := &model.Store{
 		ID:      store1.ID,
 		Name:    randomstring.HumanFriendlyString(10),
 		City:    randomstring.HumanFriendlyString(10),

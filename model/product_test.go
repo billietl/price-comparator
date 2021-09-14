@@ -1,7 +1,8 @@
-package model
+package model_test
 
 import (
 	"math/rand"
+	"price-comparator/model"
 	"testing"
 
 	"github.com/google/uuid"
@@ -17,7 +18,7 @@ func TestNewProductFields(t *testing.T) {
 	result["bio"] = rand.Int()%2 == 1
 	result["vrac"] = rand.Int()%2 == 1
 
-	p := NewProduct(result["name"].(string), result["bio"].(bool), result["vrac"].(bool))
+	p := model.NewProduct(result["name"].(string), result["bio"].(bool), result["vrac"].(bool))
 
 	assert.NotEqual(t, result["id"], "")
 	assert.Equal(t, result["name"], p.Name)
@@ -28,8 +29,8 @@ func TestNewProductFields(t *testing.T) {
 func TestNewProductUUID(t *testing.T) {
 	t.Parallel()
 
-	p1 := NewProduct("", false, false)
-	p2 := NewProduct("", false, false)
+	p1 := model.NewProduct("", false, false)
+	p2 := model.NewProduct("", false, false)
 
 	assert.NotEqual(t, p1.ID, p2.ID)
 }
@@ -37,7 +38,7 @@ func TestNewProductUUID(t *testing.T) {
 func TestProductGenerateID(t *testing.T) {
 	t.Parallel()
 
-	product := NewProduct("", false, false)
+	product := model.NewProduct("", false, false)
 	id1 := product.ID
 	product.GenerateID()
 	id2 := product.ID
@@ -48,19 +49,19 @@ func TestProductGenerateID(t *testing.T) {
 func TestProductEquals(t *testing.T) {
 	t.Parallel()
 
-	product1 := &Product{
+	product1 := &model.Product{
 		ID:   uuid.New().String(),
 		Name: randomstring.HumanFriendlyString(10),
 		Bio:  rand.Int()%2 == 1,
 		Vrac: rand.Int()%2 == 1,
 	}
-	product2 := &Product{
+	product2 := &model.Product{
 		ID:   uuid.New().String(),
 		Name: product1.Name,
 		Bio:  product1.Bio,
 		Vrac: product1.Vrac,
 	}
-	product3 := &Product{
+	product3 := &model.Product{
 		ID:   product1.ID,
 		Name: randomstring.HumanFriendlyString(10),
 		Bio:  !product1.Bio,

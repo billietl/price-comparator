@@ -1,7 +1,9 @@
-package model
+package model_test
 
 import (
 	"math/rand"
+	"price-comparator/model"
+	"price-comparator/testUtils"
 	"testing"
 	"time"
 
@@ -13,11 +15,11 @@ func TestNewPriceFields(t *testing.T) {
 	t.Parallel()
 
 	result_amount := rand.Float64()
-	result_date := Randate()
-	result_product := GenerateRandomProduct()
-	result_store := GenerateRandomStore()
+	result_date := testUtils.Randate()
+	result_product := testUtils.GenerateRandomProduct()
+	result_store := testUtils.GenerateRandomStore()
 
-	price := NewPrice(result_product, result_store, result_amount, &result_date)
+	price := model.NewPrice(result_product, result_store, result_amount, &result_date)
 
 	assert.NotEqual(t, "", price.ID)
 	assert.Equal(t, result_amount, price.Amount)
@@ -28,11 +30,12 @@ func TestNewPriceFields(t *testing.T) {
 }
 
 func TestNewPriceNowDate(t *testing.T) {
+	// TODO: rewrite this test
 	t.Parallel()
 
-	price1 := GenerateRandomPrice()
+	price1 := testUtils.GenerateRandomPrice()
 	time.Sleep(1)
-	price2 := GenerateRandomPrice()
+	price2 := testUtils.GenerateRandomPrice()
 
 	assert.NotEqual(t, *price1.Date, *price2.Date)
 }
@@ -40,12 +43,12 @@ func TestNewPriceNowDate(t *testing.T) {
 func TestNewPriceUUID(t *testing.T) {
 	t.Parallel()
 
-	product := GenerateRandomProduct()
-	store := GenerateRandomStore()
+	product := testUtils.GenerateRandomProduct()
+	store := testUtils.GenerateRandomStore()
 	today := time.Now()
 
-	price1 := NewPrice(product, store, 1.0, &today)
-	price2 := NewPrice(product, store, 1.0, &today)
+	price1 := model.NewPrice(product, store, 1.0, &today)
+	price2 := model.NewPrice(product, store, 1.0, &today)
 
 	assert.NotEqual(t, price1.ID, price2.ID)
 }
@@ -53,7 +56,7 @@ func TestNewPriceUUID(t *testing.T) {
 func TestPriceGenerateID(t *testing.T) {
 	t.Parallel()
 
-	price := GenerateRandomPrice()
+	price := testUtils.GenerateRandomPrice()
 
 	id1 := price.ID
 	price.GenerateID()
@@ -65,28 +68,28 @@ func TestPriceGenerateID(t *testing.T) {
 func TestPriceEquals(t *testing.T) {
 	t.Parallel()
 
-	date1 := Randate()
-	date3 := Randate()
-	price1 := &Price{
+	date1 := testUtils.Randate()
+	date3 := testUtils.Randate()
+	price1 := &model.Price{
 		ID:         uuid.New().String(),
 		Amount:     rand.Float64(),
 		Date:       &date1,
-		Product_ID: GenerateRandomProduct().ID,
-		Store_ID:   GenerateRandomStore().ID,
+		Product_ID: testUtils.GenerateRandomProduct().ID,
+		Store_ID:   testUtils.GenerateRandomStore().ID,
 	}
-	price2 := &Price{
+	price2 := &model.Price{
 		ID:         uuid.New().String(),
 		Amount:     price1.Amount,
 		Date:       price1.Date,
 		Product_ID: price1.Product_ID,
 		Store_ID:   price1.Store_ID,
 	}
-	price3 := &Price{
+	price3 := &model.Price{
 		ID:         price1.ID,
 		Amount:     rand.Float64(),
 		Date:       &date3,
-		Product_ID: GenerateRandomProduct().ID,
-		Store_ID:   GenerateRandomStore().ID,
+		Product_ID: testUtils.GenerateRandomProduct().ID,
+		Store_ID:   testUtils.GenerateRandomStore().ID,
 	}
 
 	assert.Equal(t, false, price1.Equals(price2))

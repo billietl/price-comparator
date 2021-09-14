@@ -1,7 +1,6 @@
 package model
 
 import (
-	"math/rand"
 	"time"
 
 	"github.com/google/uuid"
@@ -43,23 +42,4 @@ func (this Price) ValueEquals(price *Price) bool {
 		this.Date.Equal(*price.Date) &&
 		this.Product_ID == price.Product_ID &&
 		this.Store_ID == price.Store_ID
-}
-
-func GenerateRandomPrice() *Price {
-	date := Randate()
-	return NewPrice(
-		GenerateRandomProduct(),
-		GenerateRandomStore(),
-		rand.Float64(),
-		&date,
-	)
-}
-
-func Randate() time.Time {
-	min := time.Date(1970, 1, 0, 0, 0, 0, 0, time.UTC).Unix()
-	max := time.Date(2070, 1, 0, 0, 0, 0, 0, time.UTC).Unix()
-	delta := max - min
-
-	sec := rand.Int63n(delta) + min
-	return time.Unix(sec, 0)
 }
