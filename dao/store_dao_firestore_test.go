@@ -3,7 +3,6 @@ package dao
 import (
 	"context"
 	"price-comparator/model"
-	"price-comparator/testUtils"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -18,7 +17,7 @@ func init() {
 }
 
 func generateStoreTestData(t *testing.T) (store *model.Store) {
-	store = testUtils.GenerateRandomStore()
+	store = model.GenerateRandomStore()
 	dao := NewStoreDAOFirestore()
 
 	ctx := context.Background()
