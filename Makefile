@@ -5,7 +5,7 @@ build:
 	go build -o target/price-comparator price-comparator.go
 
 test: format
-	FIRESTORE_EMULATOR_HOST=127.0.0.1:8081 go test -v ./...
+	FIRESTORE_EMULATOR_HOST=127.0.0.1:8081 go test ./...
 
 firestore:
 	gcloud beta emulators firestore start --host-port=127.0.0.1:8081
