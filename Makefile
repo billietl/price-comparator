@@ -21,3 +21,7 @@ format:
 	goimports -w ./dao ./model ./web ./price-comparator.go
 	go vet ./...
 	go fmt ./...
+
+clean:
+	go clean -testcache
+	rm -r target
