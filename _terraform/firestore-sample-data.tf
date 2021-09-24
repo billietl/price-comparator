@@ -58,3 +58,23 @@ resource "google_firestore_document" "store_3" {
   }
   EOT
 }
+
+resource "google_firestore_document" "store_4" {
+  count = var.generate-sample-data ? 1 : 0
+  project = var.gcp_project
+  collection = "store"
+  document_id = "5c690c91-2518-4044-a63b-f95df3252fb0"
+  fields      = <<EOT
+  {
+      "name":{
+          "stringValue": "Monoprix"
+      },
+      "city":{
+          "stringValue": "Lille"
+      },
+      "zipcode":{
+          "stringValue": "59000"
+      }
+  }
+  EOT
+}
