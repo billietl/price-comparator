@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"price-comparator/dao"
+	"price-comparator/web/api"
+	"price-comparator/web/pages"
 )
 
 type Server struct {
@@ -16,13 +18,23 @@ func MakeServer(port int, dao *dao.Bundle) (server *Server) {
 	router := NewRouter()
 
 	router.RegisterController(
-		NewProductController(dao),
+		api.NewProductController(dao),
 		"/api/v1/product",
 	)
 
 	router.RegisterController(
-		NewStoreController(dao),
+		api.NewStoreController(dao),
 		"/api/v1/store",
+	)
+
+	router.RegisterController(
+		pages.NewStoreController(dao),
+		"/stores/",
+	)
+
+	router.RegisterController(
+		pages.NewIndexController(),
+		"/",
 	)
 
 	return &Server{

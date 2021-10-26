@@ -1,0 +1,29 @@
+{{ define "store/AddForm" }}
+<!DOCTYPE html>
+<html lang="en">
+  {{ template "header" }}
+  <body>
+    <div class="container">
+      <div class="starter-template">
+        <h1>Add a store</h1>
+        <form action="addAction" method="POST" name="myForm">
+            <p>
+                <label for="name">Store name:</label>
+                <input type="text" name="name" id="name"/>
+            </p>
+            <p>
+                <label for="city">Store city:</label>
+                <input type="text" name="city" id="city"/>
+            </p>
+            <p>
+                <label for="zipcode">Store zipcode:</label>
+                <input type="text" name="zipcode" id="zipcode"/>
+            </p>
+            <input value="Submit" type="submit" onclick="submitform()">
+        </form>
+      </div>
+    </div><!-- /.container -->
+    {{ template "footer" }}
+  </body>
+</html>
+{{ end }}

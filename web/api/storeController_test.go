@@ -1,4 +1,4 @@
-package web
+package api
 
 import (
 	"bytes"
@@ -11,10 +11,11 @@ import (
 	"price-comparator/model"
 	"testing"
 
+	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCreateStoreController(t *testing.T) {
+func TestStoreControllerCreateStoreController(t *testing.T) {
 	// init controller
 	dao, err := dao.GetBundle(context.Background(), "firestore")
 	if err != nil {
@@ -42,7 +43,7 @@ func TestCreateStoreController(t *testing.T) {
 	assert.Equal(t, true, reqStore.ValueEquals(&resStore))
 }
 
-func TestGetStoreController(t *testing.T) {
+func TestStoreControllerGetStoreController(t *testing.T) {
 	// init controller
 	dao, err := dao.GetBundle(context.Background(), "firestore")
 	if err != nil {
@@ -59,7 +60,7 @@ func TestGetStoreController(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s", reqStore.ID), nil)
 	res := httptest.NewRecorder()
 	// run the handler
-	router := NewRouter()
+	router := mux.NewRouter()
 	router.HandleFunc("/{id}", ctrl.GetStoreController)
 	router.ServeHTTP(res, req)
 	err = json.NewDecoder(res.Body).Decode(&resStore)
@@ -73,7 +74,7 @@ func TestGetStoreController(t *testing.T) {
 	assert.Equal(t, true, reqStore.ValueEquals(&resStore))
 }
 
-func TestUpdateStoreController(t *testing.T) {
+func TestStoreControllerUpdateStoreController(t *testing.T) {
 	// init controller
 	dao, err := dao.GetBundle(context.Background(), "firestore")
 	if err != nil {
@@ -95,7 +96,7 @@ func TestUpdateStoreController(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPut, fmt.Sprintf("/%s", reqStore.ID), bytes.NewReader(body))
 	res := httptest.NewRecorder()
 	// run the handler
-	router := NewRouter()
+	router := mux.NewRouter()
 	router.HandleFunc("/{id}", ctrl.UpdateStoreController)
 	router.ServeHTTP(res, req)
 	err = json.NewDecoder(res.Body).Decode(&resStore)
@@ -109,7 +110,7 @@ func TestUpdateStoreController(t *testing.T) {
 	assert.Equal(t, true, reqStore.ValueEquals(&resStore))
 }
 
-func TestDeleteStoreController(t *testing.T) {
+func TestStoreControllerDeleteStoreController(t *testing.T) {
 	// init controller
 	dao, err := dao.GetBundle(context.Background(), "firestore")
 	if err != nil {
@@ -125,7 +126,7 @@ func TestDeleteStoreController(t *testing.T) {
 	req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/%s", reqStore.ID), nil)
 	res := httptest.NewRecorder()
 	// run the handler
-	router := NewRouter()
+	router := mux.NewRouter()
 	router.HandleFunc("/{id}", ctrl.DeleteStoreController)
 	router.ServeHTTP(res, req)
 	// check

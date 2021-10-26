@@ -1,0 +1,26 @@
+{{ define "store/List" }}
+<!DOCTYPE html>
+<html lang="en">
+  {{ template "header" }}
+  <body>
+    <div class="container">
+      <div class="starter-template">
+        <h1>Stores</h1>
+        <ul>
+            {{ range . }}
+            <li>
+                Name: {{ .Name }},
+                City: {{ .City }},
+                Zipcode: {{ .Zipcode }},
+            </li>
+            {{ end }}
+        </ul>
+        <p>
+            <a href="add">Add a store</a>
+        </p>
+      </div>
+    </div><!-- /.container -->
+    {{ template "footer" }}
+  </body>
+</html>
+{{ end }}

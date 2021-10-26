@@ -1,4 +1,4 @@
-package web
+package api
 
 import (
 	"bytes"
@@ -11,10 +11,11 @@ import (
 	"price-comparator/model"
 	"testing"
 
+	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCreateProductController(t *testing.T) {
+func TestProductControllerCreateProductController(t *testing.T) {
 	// init controller
 	dao, err := dao.GetBundle(context.Background(), "firestore")
 	if err != nil {
@@ -42,7 +43,7 @@ func TestCreateProductController(t *testing.T) {
 	assert.Equal(t, true, reqProduct.ValueEquals(&resProduct))
 }
 
-func TestGetProductController(t *testing.T) {
+func TestProductControllerGetProductController(t *testing.T) {
 	// init controller
 	dao, err := dao.GetBundle(context.Background(), "firestore")
 	if err != nil {
@@ -59,7 +60,7 @@ func TestGetProductController(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s", reqProduct.ID), nil)
 	res := httptest.NewRecorder()
 	// run the handler
-	router := NewRouter()
+	router := mux.NewRouter()
 	router.HandleFunc("/{id}", ctrl.GetProductController)
 	router.ServeHTTP(res, req)
 	err = json.NewDecoder(res.Body).Decode(&resProduct)
@@ -73,7 +74,7 @@ func TestGetProductController(t *testing.T) {
 	assert.Equal(t, true, reqProduct.ValueEquals(&resProduct))
 }
 
-func TestDeleteProductController(t *testing.T) {
+func TestProductControllerDeleteProductController(t *testing.T) {
 	// init controller
 	dao, err := dao.GetBundle(context.Background(), "firestore")
 	if err != nil {
@@ -89,14 +90,14 @@ func TestDeleteProductController(t *testing.T) {
 	req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/%s", reqProduct.ID), nil)
 	res := httptest.NewRecorder()
 	// run the handler
-	router := NewRouter()
+	router := mux.NewRouter()
 	router.HandleFunc("/{id}", ctrl.DeleteProductController)
 	router.ServeHTTP(res, req)
 	// check
 	assert.Equal(t, res.Code, http.StatusOK)
 }
 
-func TestUpdateProductController(t *testing.T) {
+func TestProductControllerUpdateProductController(t *testing.T) {
 	// init controller
 	dao, err := dao.GetBundle(context.Background(), "firestore")
 	if err != nil {
@@ -117,7 +118,7 @@ func TestUpdateProductController(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPut, fmt.Sprintf("/%s", reqProduct.ID), bytes.NewReader(body))
 	res := httptest.NewRecorder()
 	// run the handler
-	router := NewRouter()
+	router := mux.NewRouter()
 	router.HandleFunc("/{id}", ctrl.UpdateProductController)
 	router.ServeHTTP(res, req)
 	err = json.NewDecoder(res.Body).Decode(&resProduct)
