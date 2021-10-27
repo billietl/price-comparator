@@ -11,6 +11,7 @@ require (
 	github.com/gorilla/schema v1.2.0 // indirect
 	github.com/justinas/alice v1.2.0 // indirect
 	github.com/rs/zerolog v1.25.0 // indirect
+	github.com/rzajac/zltest v0.10.0 // indirect
 	github.com/stretchr/testify v1.7.0
 	github.com/thedevsaddam/renderer v1.2.0 // indirect
 	github.com/urfave/cli/v2 v2.3.0

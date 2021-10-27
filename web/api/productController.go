@@ -2,10 +2,11 @@ package api
 
 import (
 	"encoding/json"
-	"log"
+	"fmt"
 	"net/http"
 
 	"price-comparator/dao"
+	"price-comparator/logger"
 	"price-comparator/model"
 
 	"github.com/gorilla/mux"
@@ -53,8 +54,7 @@ func (ph ProductController) CreateProductController(w http.ResponseWriter, r *ht
 
 	err := json.NewDecoder(r.Body).Decode(&product)
 	if err != nil {
-		log.Printf("Could not decode request")
-		log.Print(err.Error())
+		logger.Error(err, "Could not decode request")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -62,8 +62,7 @@ func (ph ProductController) CreateProductController(w http.ResponseWriter, r *ht
 	product.GenerateID()
 	err = ph.Dao.ProductDAO.Upsert(r.Context(), &product)
 	if err != nil {
-		log.Printf("Could not upsert product")
-		log.Print(err.Error())
+		logger.Error(err, "Could not upsert product")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -72,8 +71,7 @@ func (ph ProductController) CreateProductController(w http.ResponseWriter, r *ht
 	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(&product)
 	if err != nil {
-		log.Printf("Error writing response")
-		log.Print(err.Error())
+		logger.Error(err, "Error writing response")
 	}
 }
 
@@ -85,13 +83,11 @@ func (ph ProductController) GetProductController(w http.ResponseWriter, r *http.
 	product, err := ph.Dao.ProductDAO.Load(r.Context(), id)
 	if err != nil {
 		if grpc.Code(err) == codes.NotFound {
-			log.Printf("Product not found : %s", id)
-			log.Print(err.Error())
+			logger.Error(err, fmt.Sprintf("Product not found : %s", id))
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
-		log.Printf("Error fetching product %s", id)
-		log.Print(err.Error())
+		logger.Error(err, fmt.Sprintf("Error fetching product %s", id))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -100,8 +96,7 @@ func (ph ProductController) GetProductController(w http.ResponseWriter, r *http.
 	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(&product)
 	if err != nil {
-		log.Printf("Error writing response")
-		log.Print(err.Error())
+		logger.Error(err, "Error writing response")
 	}
 
 }
@@ -113,8 +108,7 @@ func (ph ProductController) DeleteProductController(w http.ResponseWriter, r *ht
 
 	err := ph.Dao.ProductDAO.Delete(r.Context(), id)
 	if err != nil {
-		log.Printf("Error deleting product %s", id)
-		log.Print(err.Error())
+		logger.Error(err, fmt.Sprintf("Error deleting product %s", id))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -127,7 +121,7 @@ func (ph ProductController) UpdateProductController(w http.ResponseWriter, r *ht
 
 	id := mux.Vars(r)["id"]
 	if id == "" {
-		log.Printf("No product ID found in request")
+		logger.Warn("No product ID found in request")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -136,8 +130,7 @@ func (ph ProductController) UpdateProductController(w http.ResponseWriter, r *ht
 
 	err := json.NewDecoder(r.Body).Decode(&product)
 	if err != nil {
-		log.Printf("Could not decode request")
-		log.Print(err.Error())
+		logger.Error(err, "Could not decode request")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -145,8 +138,7 @@ func (ph ProductController) UpdateProductController(w http.ResponseWriter, r *ht
 	product.ID = id
 	err = ph.Dao.ProductDAO.Upsert(r.Context(), &product)
 	if err != nil {
-		log.Printf("Could not upsert product")
-		log.Print(err.Error())
+		logger.Error(err, "Could not upsert product")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -155,7 +147,6 @@ func (ph ProductController) UpdateProductController(w http.ResponseWriter, r *ht
 	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(&product)
 	if err != nil {
-		log.Printf("Error writing response")
-		log.Print(err.Error())
+		logger.Error(err, "Error writing response")
 	}
 }

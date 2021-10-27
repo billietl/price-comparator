@@ -3,16 +3,14 @@ package web
 import (
 	"fmt"
 	"net/http"
-	"os"
 	"price-comparator/dao"
+	"price-comparator/logger"
 	"price-comparator/web/api"
 	"price-comparator/web/pages"
 	"time"
 
 	"github.com/gorilla/handlers"
 	"github.com/justinas/alice"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/diode"
 	"github.com/rs/zerolog/hlog"
 	"github.com/rs/zerolog/log"
 )
@@ -54,13 +52,7 @@ func MakeServer(port int, dao *dao.Bundle) (server *Server) {
 func (serv Server) computeMiddlewares(appRouter *Router) (finalRouter http.Handler) {
 	chain := alice.New()
 	// Logging middleware
-	wr := diode.NewWriter(os.Stdout, 1000, 10*time.Millisecond, func(missed int) {
-		fmt.Printf("Logger Dropped %d messages", missed)
-	})
-	logger := zerolog.New(wr).With().
-		Timestamp().
-		Logger()
-	chain = chain.Append(hlog.NewHandler(logger))
+	chain = chain.Append(hlog.NewHandler(*logger.GetAccessLogger()))
 	chain = chain.Append(hlog.AccessHandler(func(r *http.Request, status, size int, duration time.Duration) {
 		hlog.FromRequest(r).Info().
 			Str("method", r.Method).

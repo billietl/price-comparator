@@ -2,9 +2,10 @@ package api
 
 import (
 	"encoding/json"
-	"log"
+	"fmt"
 	"net/http"
 	"price-comparator/dao"
+	"price-comparator/logger"
 	"price-comparator/model"
 
 	"github.com/gorilla/mux"
@@ -52,8 +53,7 @@ func (sc StoreController) CreateStoreController(w http.ResponseWriter, r *http.R
 
 	err := json.NewDecoder(r.Body).Decode(&store)
 	if err != nil {
-		log.Printf("Could not decode request")
-		log.Print(err.Error())
+		logger.Error(err, "Could not decode request")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -61,8 +61,7 @@ func (sc StoreController) CreateStoreController(w http.ResponseWriter, r *http.R
 	store.GenerateID()
 	err = sc.Dao.StoreDAO.Upsert(r.Context(), &store)
 	if err != nil {
-		log.Printf("Could not upsert store")
-		log.Print(err.Error())
+		logger.Error(err, "Could not upsert store")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -71,8 +70,7 @@ func (sc StoreController) CreateStoreController(w http.ResponseWriter, r *http.R
 	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(&store)
 	if err != nil {
-		log.Printf("Error writing response")
-		log.Print(err.Error())
+		logger.Error(err, "Error writing response")
 	}
 }
 
@@ -84,13 +82,11 @@ func (sc StoreController) GetStoreController(w http.ResponseWriter, r *http.Requ
 	store, err := sc.Dao.StoreDAO.Load(r.Context(), id)
 	if err != nil {
 		if grpc.Code(err) == codes.NotFound {
-			log.Printf("Store not found : %s", id)
-			log.Print(err.Error())
+			logger.Error(err, fmt.Sprintf("Store not found : %s", id))
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
-		log.Printf("Error fetching store %s", id)
-		log.Print(err.Error())
+		logger.Error(err, fmt.Sprintf("Error fetching store %s", id))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -99,8 +95,7 @@ func (sc StoreController) GetStoreController(w http.ResponseWriter, r *http.Requ
 	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(&store)
 	if err != nil {
-		log.Printf("Error writing response")
-		log.Print(err.Error())
+		logger.Error(err, "Error writing response")
 	}
 }
 
@@ -109,7 +104,7 @@ func (sc StoreController) UpdateStoreController(w http.ResponseWriter, r *http.R
 
 	id := mux.Vars(r)["id"]
 	if id == "" {
-		log.Printf("No store ID found in request")
+		logger.Warn("No store ID found in request")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -118,8 +113,7 @@ func (sc StoreController) UpdateStoreController(w http.ResponseWriter, r *http.R
 
 	err := json.NewDecoder(r.Body).Decode(&store)
 	if err != nil {
-		log.Printf("Could not decode request")
-		log.Print(err.Error())
+		logger.Error(err, "Could not decode request")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -127,8 +121,7 @@ func (sc StoreController) UpdateStoreController(w http.ResponseWriter, r *http.R
 	store.ID = id
 	err = sc.Dao.StoreDAO.Upsert(r.Context(), &store)
 	if err != nil {
-		log.Printf("Could not upsert store")
-		log.Print(err.Error())
+		logger.Error(err, "Could not upsert store")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -137,8 +130,7 @@ func (sc StoreController) UpdateStoreController(w http.ResponseWriter, r *http.R
 	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(&store)
 	if err != nil {
-		log.Printf("Error writing response")
-		log.Print(err.Error())
+		logger.Error(err, "Error writing response")
 	}
 }
 
@@ -149,8 +141,7 @@ func (sc StoreController) DeleteStoreController(w http.ResponseWriter, r *http.R
 
 	err := sc.Dao.StoreDAO.Delete(r.Context(), id)
 	if err != nil {
-		log.Printf("Error deleting store %s", id)
-		log.Print(err.Error())
+		logger.Error(err, fmt.Sprintf("Error deleting store %s", id))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

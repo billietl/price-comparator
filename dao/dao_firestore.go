@@ -3,8 +3,8 @@ package dao
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
+	"price-comparator/logger"
 
 	"cloud.google.com/go/firestore"
 )
@@ -27,6 +27,6 @@ func initFirestore(ctx context.Context) {
 func shutDownFirestoreClient() {
 	err := firestoreClient.Close()
 	if err != nil {
-		log.Fatal(err.Error())
+		logger.Error(err, "Error closing firestore client")
 	}
 }
