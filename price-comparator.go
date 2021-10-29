@@ -1,9 +1,10 @@
 package main
 
 import (
-	"log"
+	"fmt"
 	"os"
 	"price-comparator/dao"
+	"price-comparator/logger"
 	"price-comparator/web"
 
 	cli "github.com/urfave/cli/v2"
@@ -21,12 +22,17 @@ func run(c *cli.Context) error {
 
 	usedDao, err := dao.GetBundle(c.Context, daoType)
 	if err != nil {
-		log.Fatal("Error creating DAO of type \"" + daoType + "\" : " + err.Error())
+		logger.Error(err, fmt.Sprintf("Error creating DAO of type \"%s\"", daoType))
 		return err
 	}
 
+	logger.InitLoggers(os.Stdout)
+
 	server := web.MakeServer(8080, usedDao)
-	log.Fatal(server.Run())
+	err = server.Run()
+	if err != nil {
+		logger.Error(err, "Server crash")
+	}
 
 	usedDao.Shutdown()
 	return nil
@@ -51,8 +57,5 @@ func main() {
 			Destination: &gcpProjectID,
 		},
 	}
-	err := app.Run(os.Args)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
+	app.Run(os.Args)
 }

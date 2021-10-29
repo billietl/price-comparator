@@ -12,7 +12,6 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/justinas/alice"
 	"github.com/rs/zerolog/hlog"
-	"github.com/rs/zerolog/log"
 )
 
 type Server struct {
@@ -72,15 +71,14 @@ func (serv Server) computeMiddlewares(appRouter *Router) (finalRouter http.Handl
 }
 
 func (serv Server) Run() error {
-	log.Info().Msg(fmt.Sprintf("Starting server on port %d", serv.port))
-	log.Fatal().Msgf(
-		"%s",
-		http.ListenAndServe(
-			fmt.Sprintf(":%d", serv.port),
-			serv.computeMiddlewares(serv.router),
-		),
+	logger.Info(fmt.Sprintf("Starting server on port %d", serv.port))
+	err := http.ListenAndServe(
+		fmt.Sprintf(":%d", serv.port),
+		serv.computeMiddlewares(serv.router),
 	)
-	log.Info().Msg("Shuting server")
-
+	if err != nil {
+		return err
+	}
+	logger.Info("Shuting server")
 	return nil
 }
