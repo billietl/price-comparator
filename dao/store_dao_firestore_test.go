@@ -49,7 +49,7 @@ func TestStoreDAOFirestoreCreate(t *testing.T) {
 		t.Log(err.Error())
 		t.Fail()
 	}
-	defer firestoreClient.Collection(firestoreStoreCollection).Doc(createdStore.ID).Delete(ctx)
+	t.Cleanup(func() { firestoreClient.Collection(firestoreStoreCollection).Doc(createdStore.ID).Delete(ctx) })
 
 	// Reload data
 	doc, err := firestoreClient.Collection(firestoreStoreCollection).Doc(createdStore.ID).Get(ctx)
@@ -69,7 +69,7 @@ func TestStoreDAOFirestoreRead(t *testing.T) {
 	ctx := context.Background()
 	// Setup test data
 	testStore := generateStoreTestData(t)
-	defer firestoreClient.Collection(firestoreStoreCollection).Doc(testStore.ID).Delete(ctx)
+	t.Cleanup(func() { firestoreClient.Collection(firestoreStoreCollection).Doc(testStore.ID).Delete(ctx) })
 
 	storeDAO := NewStoreDAOFirestore()
 
@@ -92,7 +92,7 @@ func TestStoreDAOFirestoreUpdate(t *testing.T) {
 
 	// Setup test data
 	testStore := generateStoreTestData(t)
-	defer firestoreClient.Collection(firestoreStoreCollection).Doc(testStore.ID).Delete(ctx)
+	t.Cleanup(func() { firestoreClient.Collection(firestoreStoreCollection).Doc(testStore.ID).Delete(ctx) })
 
 	store, err := storeDAO.Load(ctx, testStore.ID)
 	if err != nil {
@@ -146,7 +146,7 @@ func TestStoreDAOFirestoreSearch(t *testing.T) {
 
 	// Setup test data
 	testStore := generateStoreTestData(t)
-	defer firestoreClient.Collection(firestoreStoreCollection).Doc(testStore.ID).Delete(ctx)
+	t.Cleanup(func() { firestoreClient.Collection(firestoreStoreCollection).Doc(testStore.ID).Delete(ctx) })
 
 	searchedByNameStore := model.Store{
 		Name: testStore.Name,
@@ -160,4 +160,88 @@ func TestStoreDAOFirestoreSearch(t *testing.T) {
 	assert.Equal(t, testStore.Name, (*storeList)[0].Name, "Didn't find the right store name")
 	assert.Equal(t, testStore.City, (*storeList)[0].City, "Didn't find the right store city")
 	assert.Equal(t, testStore.Zipcode, (*storeList)[0].Zipcode, "Didn't find the right store zipcode")
+}
+
+func TestStoreDAOFirestoreList(t *testing.T) {
+	ctx := context.Background()
+	storeDAO := NewStoreDAOFirestore()
+
+	// Setup test data
+	testStore1 := generateStoreTestData(t)
+	t.Cleanup(func() { firestoreClient.Collection(firestoreStoreCollection).Doc(testStore1.ID).Delete(ctx) })
+	testStore2 := generateStoreTestData(t)
+	t.Cleanup(func() { firestoreClient.Collection(firestoreStoreCollection).Doc(testStore2.ID).Delete(ctx) })
+
+	t.Run("Test paginator limit", func(t *testing.T) {
+		pag := &Paginator{
+			PageNumber: 0,
+			PageSize:   1,
+		}
+		storeList, err := storeDAO.List(ctx, pag)
+		if err != nil {
+			t.Log(err.Error())
+			t.Fail()
+		}
+		assert.Equal(t, 1, len(*storeList), "Didn't find the right amount of stores")
+		assert.Equal(t, true, pag.HasNext)
+		assert.Equal(t, false, pag.HasPrevious)
+	})
+
+	t.Run("Test scarce paginator", func(t *testing.T) {
+		pag := &Paginator{
+			PageNumber: 0,
+			PageSize:   100,
+		}
+		storeList, err := storeDAO.List(ctx, pag)
+		if err != nil {
+			t.Log(err.Error())
+			t.Fail()
+		}
+		assert.Equal(t, 2, len(*storeList), "Didn't find the right amount of stores")
+		assert.Equal(t, false, pag.HasNext)
+		assert.Equal(t, false, pag.HasPrevious)
+	})
+
+	t.Run("Test pagination", func(t *testing.T) {
+		pag := &Paginator{
+			PageNumber: 0,
+			PageSize:   1,
+		}
+		storeList, err := storeDAO.List(ctx, pag)
+		if err != nil {
+			t.Log(err.Error())
+			t.Fail()
+		}
+		storePage0 := (*storeList)[0]
+		pag = &Paginator{
+			PageNumber: 1,
+			PageSize:   1,
+		}
+		storeList, err = storeDAO.List(ctx, pag)
+		if err != nil {
+			t.Log(err.Error())
+			t.Fail()
+		}
+		storePage1 := (*storeList)[0]
+		assert.NotEqual(t, true, storePage0.Equals(&storePage1))
+		assert.Equal(t, true, pag.HasPrevious)
+	})
+
+}
+
+func TestStoreDAOFirestoreCount(t *testing.T) {
+	ctx := context.Background()
+	storeDAO := NewStoreDAOFirestore()
+
+	// Setup test data
+	for i := 0; i < 5; i++ {
+		testStore := generateStoreTestData(t)
+		t.Cleanup(func() { firestoreClient.Collection(firestoreStoreCollection).Doc(testStore.ID).Delete(ctx) })
+	}
+	count, err := storeDAO.Count(ctx)
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+	assert.Equal(t, 5, count)
 }

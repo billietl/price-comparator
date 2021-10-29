@@ -39,12 +39,19 @@ func (sc StoreController) SetupRouter(router *mux.Router) {
 }
 
 func (sc StoreController) GetStoreList(w http.ResponseWriter, r *http.Request) {
-	stores, err := sc.Dao.StoreDAO.Search(r.Context(), model.NewStore("", "", ""))
+	paginator := &dao.Paginator{
+		PageNumber: 0,
+		PageSize:   5,
+	}
+	stores, err := sc.Dao.StoreDAO.List(r.Context(), paginator)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
-	rnd.HTML(w, http.StatusOK, "store/List", stores)
+	rnd.HTML(w, http.StatusOK, "store/List", map[string]interface{}{
+		"stores":    stores,
+		"paginator": paginator,
+	})
 }
 
 func (sc StoreController) AddStoreForm(w http.ResponseWriter, r *http.Request) {

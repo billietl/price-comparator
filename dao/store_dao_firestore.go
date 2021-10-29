@@ -3,6 +3,8 @@ package dao
 import (
 	"context"
 	"price-comparator/model"
+
+	"cloud.google.com/go/firestore"
 )
 
 const firestoreStoreCollection = "store"
@@ -79,6 +81,40 @@ func (dao StoreDAOFirestore) Search(ctx context.Context, s *model.Store) (storeL
 		result = append(result, *newStore)
 	}
 	return &result, nil
+}
+
+func (dao StoreDAOFirestore) List(ctx context.Context, p *Paginator) (storeList *[]model.Store, err error) {
+	count, err := dao.Count(ctx)
+	if err != nil {
+		return
+	}
+	p.HasNext = count > (p.PageNumber+1)*p.PageSize
+	p.HasPrevious = p.PageNumber > 0
+	query := firestoreClient.Collection(firestoreStoreCollection).
+		OrderBy("name", firestore.Asc).
+		Limit(p.PageSize).
+		Offset(p.PageNumber * p.PageNumber)
+	docs, err := query.Documents(ctx).GetAll()
+	if err != nil {
+		return
+	}
+	result := make([]model.Store, 0, len(docs))
+	for _, doc := range docs {
+		newStore, err := dao.Load(ctx, (*doc).Ref.ID)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, *newStore)
+	}
+	return &result, nil
+}
+
+func (dao StoreDAOFirestore) Count(ctx context.Context) (count int, err error) {
+	docs, err := firestoreClient.Collection(firestoreStoreCollection).Documents(ctx).GetAll()
+	if err != nil {
+		return
+	}
+	return len(docs), nil
 }
 
 func (dao StoreDAOFirestore) fromModel(s *model.Store) (store *firestoreStore) {
