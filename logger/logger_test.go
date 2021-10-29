@@ -3,6 +3,7 @@ package logger
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"os"
 	"testing"
 
@@ -44,6 +45,37 @@ func TestWarn(t *testing.T) {
 	initLoggers(t)
 	Warn("foobar")
 	msg := getLastMessageJson(t)
+	assert.Contains(t, msg, "message")
+	assert.Contains(t, msg, "level")
+	assert.Contains(t, msg, "logger")
 	assert.Equal(t, "foobar", msg["message"])
 	assert.Equal(t, "warn", msg["level"])
+	assert.Equal(t, "debug", msg["logger"])
+}
+
+func TestError(t *testing.T) {
+	initLoggers(t)
+	err := errors.New("test error, can discard")
+	Error(err, "barbaz")
+	msg := getLastMessageJson(t)
+	assert.Contains(t, msg, "message")
+	assert.Contains(t, msg, "logger")
+	assert.Contains(t, msg, "level")
+	assert.Contains(t, msg, "error")
+	assert.Equal(t, "barbaz", msg["message"])
+	assert.Equal(t, "error", msg["level"])
+	assert.Equal(t, "test error, can discard", msg["error"])
+	assert.Equal(t, "error", msg["logger"])
+}
+
+func TestAccessLogger(t *testing.T) {
+	initLoggers(t)
+	GetAccessLogger().Info().Msg("test")
+	msg := getLastMessageJson(t)
+	assert.Contains(t, msg, "time")
+	assert.Contains(t, msg, "logger")
+	assert.Contains(t, msg, "message")
+	assert.Contains(t, msg, "level")
+	assert.Equal(t, "test", msg["message"])
+	assert.Equal(t, "access-log", msg["logger"])
 }

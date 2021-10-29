@@ -19,9 +19,10 @@ func InitLoggers(output io.Writer) {
 	})
 	accessLogger = zerolog.New(wr).With().
 		Timestamp().
+		Str("logger", "access-log").
 		Logger()
-	debugLogger = zerolog.New(wr).With().Logger()
-	errorLogger = zerolog.New(output).With().Logger()
+	debugLogger = zerolog.New(wr).With().Str("logger", "debug").Logger()
+	errorLogger = zerolog.New(output).With().Str("logger", "error").Logger()
 }
 
 func GetAccessLogger() *zerolog.Logger {
