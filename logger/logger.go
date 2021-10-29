@@ -17,12 +17,19 @@ func InitLoggers(output io.Writer) {
 	wr := diode.NewWriter(output, 1000, 10*time.Millisecond, func(missed int) {
 		fmt.Printf("Logger Dropped %d messages", missed)
 	})
-	accessLogger = zerolog.New(wr).With().
-		Timestamp().
+
+	baseLogger := zerolog.New(output).With().Timestamp().Logger()
+	delayedLogger := zerolog.New(wr).With().Timestamp().Logger()
+
+	accessLogger = delayedLogger.With().
 		Str("logger", "access-log").
 		Logger()
-	debugLogger = zerolog.New(wr).With().Str("logger", "debug").Logger()
-	errorLogger = zerolog.New(output).With().Str("logger", "error").Logger()
+	debugLogger = delayedLogger.With().
+		Str("logger", "debug").
+		Logger()
+	errorLogger = baseLogger.With().
+		Str("logger", "error").
+		Logger()
 }
 
 func GetAccessLogger() *zerolog.Logger {
@@ -35,4 +42,8 @@ func Error(err error, msg string) {
 
 func Warn(msg string) {
 	debugLogger.Warn().Msg(msg)
+}
+
+func Info(msg string) {
+	debugLogger.Info().Msg(msg)
 }
