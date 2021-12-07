@@ -98,3 +98,23 @@ resource "google_firestore_document" "store_5" {
   }
   EOT
 }
+
+resource "google_firestore_document" "store_6" {
+  count = var.generate-sample-data ? 1 : 0
+  project = var.gcp_project
+  collection = "store"
+  document_id = "5c691c91-2518-4044-a63b-f95dd3252fb0"
+  fields      = <<EOT
+  {
+      "name":{
+          "stringValue": "Carrefour"
+      },
+      "city":{
+          "stringValue": "Wasquehal"
+      },
+      "zipcode":{
+          "stringValue": "59290"
+      }
+  }
+  EOT
+}
