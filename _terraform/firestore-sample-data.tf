@@ -118,3 +118,23 @@ resource "google_firestore_document" "store_6" {
   }
   EOT
 }
+
+resource "google_firestore_document" "store_7" {
+  count = var.generate-sample-data ? 1 : 0
+  project = var.gcp_project
+  collection = "store"
+  document_id = "5c691c91-2518-4044-a63b-f95dd4252fb0"
+  fields      = <<EOT
+  {
+      "name":{
+          "stringValue": "Auchan"
+      },
+      "city":{
+          "stringValue": "Valenciennes"
+      },
+      "zipcode":{
+          "stringValue": "59400"
+      }
+  }
+  EOT
+}
